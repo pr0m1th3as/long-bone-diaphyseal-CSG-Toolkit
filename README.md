@@ -14,3 +14,19 @@ it from source with the following command
 
 >> mkoctfile readObj.cc
 
+The CSG Toolkit can be called in batch processing mode using the 'longbone_Analysis.m'
+script which can handle all available 3D models found in OBJ format in the working
+directory as long as a specific bone, i.e. humerus, femur or tibia, is selected. Type
+
+>> help longbone_Analysis
+
+for information about its usage. The CSG Toolkit also provides functionality for
+graphical representation of the cross-sectional contours and their respective CSG
+properties, which can be accessed with the 'visualize_CrossSections.m' function by
+reading the output results of the longbone_Analysis stored in relevant CSV files.
+
+The present toolkit includes a sample 3D model of a left humerus, from the Athens
+modern reference skeletal collection housed at the University of Athens, along with
+its corresponding Meshlab PickedPoints file (extension: .pp) for demonstrative 
+purposes. The CSG analysis results are also included for the particular bone stored
+in the relevant .csv files.
