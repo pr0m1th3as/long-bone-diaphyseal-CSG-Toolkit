@@ -60,7 +60,7 @@ function [varargout] = visualize_CrossSections(varargin)
     filenames = ls;
     g_filename = strcat("geometry-", bone_id, ".csv");
     i_filename = strcat("inertia-", bone_id, ".csv");
-    p_filename = strcat("polyline-", bone_id, ".csv");
+    p_filename = strcat("polyline2D-", bone_id, ".csv");
     for i = length(filenames(:,1)):-1:1
       if !(isempty(strfind(filenames(i,:), g_filename)))
         geometry = csvread(g_filename);
