@@ -18,7 +18,7 @@ function [varargout] = visualize_CrossSections(varargin)
   % function visualize_CrossSections("bone_id", CS_Geometry, SMoA, polyline)
   % function [CS_Geometry, SMoA, polyline] = visualize_CrossSections("bone_id")
   %
-  % This function reads the 'geometry-$$.csv', 'inertia-$$.csv' and 'polyline$$.csv'
+  % This function reads the 'geometry-$$.csv', 'inertia-$$.csv' and 'polyline2D-$$.csv'
   % files produced with the 'longbone_Analysis.m' script, where $$ is the 'bone_id'
   % char string for the required bone, and plots the 2D cross sectional polygons
   % from proximal (top) to distal (bottom) along with certain information regarding
