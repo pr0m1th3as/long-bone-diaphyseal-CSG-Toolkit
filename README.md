@@ -8,7 +8,7 @@ as a triangular mesh in a Wavefront OBJ file format.
 
 The CSG Toolkit requires the 'io', 'statistical' and 'geometry' packages to be
 installed. Reading the .obj mesh files is performed with the readObj.oct file,
-which may be used directly as a binary. In case this is not achieved (due to
+which may be used directly as a binary. In case this is not possible (due to
 different version of GNU Octave installed or else), the user may directly recompile
 it from source with the following command
 
