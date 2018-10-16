@@ -63,6 +63,10 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   %         'CS_Geometry(x).Area'     : calculated in mm2
   %         'CS_Geometry(x).Perimeter': calculated in mm
   %         'CS_Geometry(x).Centroid' : containing the (x,y,z) coordinates in R3
+  %         'CS_Geometry(x).Slice_n'  : containing the (x,y,z) normal vector of
+  %                                     the slicing plane
+  %         'CS_Geometry(x).Coronal_n': containing the (x,y,z) normal vector of
+  %                                     the coronal plane facing anteriorly
   %
   %   'SMoA(x)'             is an array structure containing the fields:
   %         'SMoA(x).Ix'      : 2nd moment of area with respect to x axis,
@@ -71,7 +75,6 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   %         'SMoA(x).Iy'      : 2nd moment of area with respect to y axis,
   %                             which is collinear with the intersection of
   %                             the sagital plane and the sectioning plane
-  %         'SMoA(x).Zp'      : polar section modulus calculated in mm3
   %         'SMoA(x).Ixy'     : product 2nd moment of area calculated in mm4
   %         'SMoA(x).Imin'    : minimum 2nd moment of area calculated in mm4
   %         'SMoA(x).Imax'    : maximum 2nd moment of area calculated in mm4

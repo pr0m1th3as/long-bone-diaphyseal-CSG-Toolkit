@@ -41,7 +41,6 @@ function [varargout] = simple_polygon3D(varargin)
   %                 'GEOM.Centroid' : containing the (x,y,z) coordinates in R3
   %     'SMoA'      is a scalar structure containing the fields:
   %                 'SMoA.Ixy'      : product 2nd moment of area calculated in mm4
-  %                 'SMoA.Zp'       : polar section modulus calculated in mm3
   %                 'SMoA.Imin'     : minimum 2nd moment of area calculated in mm4
   %                 'SMoA.Imax'     : maximum 2nd moment of area calculated in mm4
   %     'polyline'  is a structure array containing the fields:
@@ -203,16 +202,12 @@ function [varargout] = simple_polygon3D(varargin)
     Ix = (1/12) * Ix;
     Iy = (1/12) * Iy;
     Ixy = (1/24) * Ixy;
-    % find maximum distance from centroid to calculate polar section modulus Zp
-    d_max = max(sqrt(sum(poly.^2, 2)));
-    Zp = (Ix + Iy) / d_max;
     % if anatomical positioning vector is present return Ix and Iy values
     if (nargin==3)
       SMoA.Ix = Ix;
       SMoA.Iy = Iy;
     endif
     SMoA.Ixy = Ixy;
-    SMoA.Zp = Zp;
     SMoA.Imin = ((Ix + Iy) * 0.5) - sqrt((((Ix - Iy) * 0.5)^2) + (Ixy^2));
     SMoA.Imax = ((Ix + Iy) * 0.5) + sqrt((((Ix - Iy) * 0.5)^2) + (Ixy^2));
     % if anatomical positioning vector is present return the rotation angle
