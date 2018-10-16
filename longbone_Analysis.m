@@ -28,9 +28,9 @@
 %                               # the order (:,[1],[2],[3:5],[6:8],[9:11]) from
 %                               # proximal to distal cross sections ([1:5],:)
 %                               
-%   inertia-ID_humerus.csv      # containing the properties of Ix, Iy, Ixy, Zp,
-%                               # Imin, Imax and theta angle for each cross section
-%                               # as a row vector (:,[1:7]) from proximal to distal
+%   inertia-ID_humerus.csv      # containing the properties of Ix, Iy, Ixy, Imin,
+%                               # Imax and theta angle for each cross section as
+%                               # a row vector (:,[1:6]) from proximal to distal
 %                               # cross sections ([1:5],:)
 %                               
 %   polyline2D-ID_humerus.csv   # containing the 2D coordinates for each cross
@@ -72,20 +72,12 @@ pkg load statistics
 pkg load geometry
 pkg load io;
 
-% list the filenames of all the files in the working folder
-filenames = ls;
-
-% remove the files that do not contain any triangular mesh
-% only file with .obj extension are kept in th list
-for i = length(filenames(:,1)):-1:1
-  if isempty(strfind(filenames(i,:),".obj"))
-    filenames(i,:) = [];
-  endif
-endfor
+% list the filenames with .obj extension in the working folder
+filenames = dir("*.obj");
 
 % calculate the geometric properties for each 
-for i = 1:length(filenames(:,1))
-  filename = strcat(filenames(i,:));
+for i = 1:length(filenames)
+  filename = strcat(filenames(i).name);
   [CS_Geometry, SMoA, polyline] = longbone_Geometry(filename, bone_type);
   
   geometry(:,1) = [CS_Geometry(1).Area; CS_Geometry(2).Area;...
@@ -98,15 +90,15 @@ for i = 1:length(filenames(:,1))
     CS_Geometry(3).Slice_n; CS_Geometry(4).Slice_n; CS_Geometry(5).Slice_n];
   geometry(:,[9:11]) = [CS_Geometry(1).Coronal_n; CS_Geometry(2).Coronal_n;...
     CS_Geometry(3).Coronal_n; CS_Geometry(4).Coronal_n; CS_Geometry(5).Coronal_n];
-  inertia(1,:) = [SMoA(1).Ix, SMoA(1).Iy, SMoA(1).Ixy, SMoA(1).Zp,...
+  inertia(1,:) = [SMoA(1).Ix, SMoA(1).Iy, SMoA(1).Ixy,...
                   SMoA(1).Imin, SMoA(1).Imax, SMoA(1).theta];
-  inertia(2,:) = [SMoA(2).Ix, SMoA(2).Iy, SMoA(2).Ixy, SMoA(2).Zp,...
+  inertia(2,:) = [SMoA(2).Ix, SMoA(2).Iy, SMoA(2).Ixy,...
                   SMoA(2).Imin, SMoA(2).Imax, SMoA(2).theta];
-  inertia(3,:) = [SMoA(3).Ix, SMoA(3).Iy, SMoA(3).Ixy, SMoA(3).Zp,...
+  inertia(3,:) = [SMoA(3).Ix, SMoA(3).Iy, SMoA(3).Ixy,...
                   SMoA(3).Imin, SMoA(3).Imax, SMoA(3).theta];
-  inertia(4,:) = [SMoA(4).Ix, SMoA(4).Iy, SMoA(4).Ixy, SMoA(4).Zp,...
+  inertia(4,:) = [SMoA(4).Ix, SMoA(4).Iy, SMoA(4).Ixy,...
                   SMoA(4).Imin, SMoA(4).Imax, SMoA(4).theta];
-  inertia(5,:) = [SMoA(5).Ix, SMoA(5).Iy, SMoA(5).Ixy, SMoA(5).Zp,...
+  inertia(5,:) = [SMoA(5).Ix, SMoA(5).Iy, SMoA(5).Ixy,...
                   SMoA(5).Imin, SMoA(5).Imax, SMoA(5).theta];
   polygon2D([1:length(polyline(1).poly2D)],[1:2]) = polyline(1).poly2D;
   polygon2D([1:length(polyline(2).poly2D)],[3:4]) = polyline(2).poly2D;
