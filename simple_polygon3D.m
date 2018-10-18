@@ -129,7 +129,7 @@ function [varargout] = simple_polygon3D(varargin)
   polygon_2Ds = sortrows([A1, polygon_2D], 1);
   polygon_2Ds = polygon_2Ds(:,[2:3]);
   % iterate through the points and check for nearest neighbor between each
-  % pair of consequtive points to compensate for concave polygons that might
+  % pair of consecutive points to compensate for concave polygons that might
   % produce strange polygon boundaries due to the initial arctan sorting
   len = length(polygon_2Ds);
   c_index = [1:len,1:len];
