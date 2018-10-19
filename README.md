@@ -25,8 +25,9 @@ graphical representation of the cross-sectional contours and their respective CS
 properties, which can be accessed with the 'visualize_CrossSections.m' function by
 reading the output results of the longbone_Analysis stored in relevant CSV files.
 
-The present toolkit includes a sample 3D model of a left humerus, from the Athens
-modern reference skeletal collection housed at the University of Athens, along with
-its corresponding Meshlab PickedPoints file (extension: .pp) for demonstrative 
-purposes. The CSG analysis results are also included for the particular bone stored
-in the relevant .csv files.
+The present toolkit has been extensively tested and these results are presented
+in the relevant validation study available at doi:10.5281/zenodo.1466135
+The testing dataset, which comprises three 3D mesh models of real humans bones 
+(a humerus, a femur and a tibia, which are part of the Athens modern reference
+skeletal collection), is also freely available at doi:10.5281/zenodo.1466962 and 
+may be used with the CSG Toolkit for demonstrating its operation.
