@@ -12,13 +12,13 @@ which may be used directly as a binary. In case this is not possible (due to
 different version of GNU Octave installed or else), the user may directly recompile
 it from source with the following command
 
-  mkoctfile readObj.cc
+     mkoctfile readObj.cc
 
 The CSG Toolkit can be called in batch processing mode using the 'longbone_Analysis.m'
 script which can handle all available 3D models found in OBJ format in the working
 directory as long as a specific bone, i.e. humerus, femur or tibia, is selected. Type
 
-  help longbone_Analysis
+     help longbone_Analysis
 
 for information about its usage. The CSG Toolkit also provides functionality for
 graphical representation of the cross-sectional contours and their respective CSG
