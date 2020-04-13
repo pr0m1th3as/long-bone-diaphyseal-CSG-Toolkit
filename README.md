@@ -6,7 +6,7 @@ analyzing the diaphyseal cross-sectional geometric properties of long bones, whi
 can be applied to any 3D digital model of a humerus, femur or tibia bone represented
 as a triangular mesh in a Wavefront OBJ file format.
 
-The CSG Toolkit requires the 'io >= 2.4.12', 'statistical >= 1.4.1' and 'matgeom-1.2.2'
+The CSG Toolkit requires the 'io >= 2.4.12', 'statistical >= 1.4.1' and 'matgeom >= 1.2.1'
 packages to be installed. Reading the .obj mesh files is performed with the readObj.oct file,
 which should be compiled before its use (the .oct binary is provided for reference purposes)
 This can be compiled from the source file 'readObj.cc' from within GNU Octave environment by
