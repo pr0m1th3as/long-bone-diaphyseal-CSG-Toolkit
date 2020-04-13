@@ -40,5 +40,6 @@ The testing dataset, which comprises three 3D mesh models of real humans bones
 skeletal collection), is also freely available at doi:10.5281/zenodo.1466962 and 
 may be used with the CSG Toolkit for demonstrating its operation. Please, when using this toolkit,
 cite the following reference:
+
 Bertsatos A, Chovalopoulou M-E. 2019. A novel method for analyzing long bone diaphyseal cross-sectional geometry. A GNU Octave CSG Toolkit. Forensic Science International 297: 65–71. DOI: 10.1016/j.forsciint.2019.01.041
 
