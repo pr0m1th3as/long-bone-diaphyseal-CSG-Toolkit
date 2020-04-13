@@ -63,7 +63,7 @@ function [varargout] = read_MeshlabPoints(filename)
       x = str2num(line(x_start:x_end));
       y = str2num(line(y_start:y_end));
       z = str2num(line(z_start:z_end));
-      if (str2num(line(name_start:name_end)))
+      if (isnumeric(str2num(line(name_start:name_end))))
         name = str2num(line(name_start:name_end));
         name_list(point_index) = str2num(line(name_start:name_end));
       else
