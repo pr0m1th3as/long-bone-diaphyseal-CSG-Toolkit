@@ -1,4 +1,4 @@
-% Copyright (C) 2020 Andreas Bertsatos <andreas.bertsatos@gmail.com>
+% Copyright (C) 2020 Andreas Bertsatos <abertsatos@biol.uoa.gr>
 %
 % This program is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free Software
@@ -558,4 +558,3 @@ function [sorted, cluster] = compare_scores_with_difference(sorted, cluster)
 		endfor
 	endfor	
 endfunction
-

@@ -1,4 +1,4 @@
-% Copyright (C) 2018 Andreas Bertsatos <andreas.bertsatos@gmail.com>
+% Copyright (C) 2018-2020 Andreas Bertsatos <abertsatos@biol.uoa.gr>
 %
 % This program is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free Software
@@ -89,7 +89,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   %         'polyline.poly3D' : Nx3 matrix containing the original 3D coordinates
   %                             of the cross section ordered counter clockwise
   %
-  % The function requires the 'io', 'geometry' & 'statistics' packages to be loaded.
+  % The function requires the 'io', 'matgeom' & 'statistics' packages to be loaded.
   % It also relies on the functions 'longbone_maxDistance.m', 'slice_Mesh_Plane.m',
   % 'simple_polygon3D.m', 'read_MeshlabPoints.m', 'write_MeshlabPoints.m' and
   % 'readObj.oct' that must be present in the working directory.

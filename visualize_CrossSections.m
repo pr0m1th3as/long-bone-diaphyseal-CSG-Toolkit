@@ -1,4 +1,4 @@
-% Copyright (C) 2018 Andreas Bertsatos <andreas.bertsatos@gmail.com>
+% Copyright (C) 2018-2020 Andreas Bertsatos <abertsatos@biol.uoa.gr>
 %
 % This program is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free Software
@@ -46,12 +46,12 @@ function [varargout] = visualize_CrossSections(varargin)
   % structure is also returned, but contains only the 'poly2D' field with the
   % 2D coordinates of the planar cross sections.
   %
-  % Function 'visualize_CrossSection.m' relies on 'io' and 'geometry' packages
+  % Function 'visualize_CrossSection.m' relies on 'io' and 'matgeom' packages
   % that need to be installed.
   
   % load io and geometry packages
   pkg load io;
-  pkg load geometry;
+  pkg load matgeom;
   % check if only 'bone_id' is given to the function and if this is the case
   % scan the files of the working directory for the required .csv files and
   % check if all three .csv files are present.
@@ -144,8 +144,3 @@ function [varargout] = visualize_CrossSections(varargin)
     varargout{3} = polyline;
   endif
 endfunction
-
-
-
-
-

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2018 Andreas Bertsatos <andreas.bertsatos@gmail.com>
+Copyright (C) 2018-2020 Andreas Bertsatos <andreas.bertsatos@gmail.com>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -448,4 +448,3 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
   
   return retval;
 }
-

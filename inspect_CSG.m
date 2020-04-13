@@ -1,4 +1,4 @@
-% Copyright (C) 2020 Andreas Bertsatos <andreas.bertsatos@gmail.com>
+% Copyright (C) 2020 Andreas Bertsatos <abertsatos@biol.uoa.gr>
 %
 % This program is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free Software
@@ -27,17 +27,14 @@
 % and if it is available it utilizes the 'readObj' and 'longbone_maxDistance' functions to measure
 % the bone's maximum length and include it in the data, otherwisea a "NaN" value is appended.
 %
-% Note that the script relies on the 'io' and the 'geometry-3.0.0' packages. If you have installed
-% any later version of the geometry package, e.g. 'geometry-4.0.0', then you will need to install
-% and load the 'matgeom' package as well. To install it just run 'pkg install -forge matgeom'
+% Note that the script relies on the 'io >= 2.4.12' and the 'matgeom >= 1.2.2' packages. If not
+% available, you can install their latest version by invoking the following commands
+% 		pkg install -forge matgeom
+%			pkg install -forge io
 
 % check and load required packages
-pkg load geometry
 pkg load io;
-if exist("anglePoints3d")==0
-	pkg unload geometry;
-	pkg load matgeom;
-endif
+pkg load matgeom;
 
 % list the filenames with geometry-*.csv pattern in the working folder
 filenames = dir("geometry-*.csv");
@@ -74,7 +71,6 @@ for i = 1:length(filenames)
 		% read full data from relevant geometry csv files
 		g_filename = strcat("geometry-", bone_id, ".csv");
 		full_geometry = csvread(g_filename);
-		
 		% write sample's id
 		complete(i+1,1) = {bone_id};
 		% check if 3D model's OBJ file is present in the working directory and in such case
@@ -109,7 +105,6 @@ for i = 1:length(filenames)
 															inertia(4).Ixy, inertia(4).Imin, inertia(4).Imax, inertia(4).theta, ...
 															geometry(5).Area, geometry(5).Perimeter, inertia(5).Ix, inertia(5).Iy, ...
 															inertia(5).Ixy, inertia(5).Imin, inertia(5).Imax, inertia(5).theta};
-															
 	elseif (strcmp (btn, "No"))
 		close all;
 	else
@@ -118,5 +113,3 @@ for i = 1:length(filenames)
 	endif
 endfor
 cell2csv("Complete Data.csv", complete);
-
-

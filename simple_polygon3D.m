@@ -1,4 +1,4 @@
-% Copyright (C) 2018 Andreas Bertsatos <andreas.bertsatos@gmail.com>
+% Copyright (C) 2018-2020 Andreas Bertsatos <abertsatos@biol.uoa.gr>
 %
 % This program is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free Software
@@ -77,7 +77,7 @@ function [varargout] = simple_polygon3D(varargin)
   % If 2 output arguments are defined, then 'GEOM' and 'SMoA' structures
   % are returned. If 3 output arguments are defined then 'polyline' is
   % also returned as the third output argument
-  
+  % The function requires the 'matgeom' and 'statistics' packages to be loaded.
   
   % check the number of input variables
   if nargin < 2 || length(varargin) > 3
@@ -233,7 +233,3 @@ function [varargout] = simple_polygon3D(varargin)
     varargout{3} = polyline;
   endif
 endfunction
-
-
-
-

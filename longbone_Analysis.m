@@ -1,4 +1,4 @@
-% Copyright (C) 2018 Andreas Bertsatos <andreas.bertsatos@gmail.com>
+% Copyright (C) 2018-2020 Andreas Bertsatos <abertsatos@biol.uoa.gr>
 %
 % This program is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free Software
@@ -59,7 +59,7 @@
 % .obj file must explicitly contain a single bone. Coordinates of the triangular
 % meshes are considered to be in mm.
 %
-% This script requires the 'geometry', 'statistics' and 'io' packages to be loaded.
+% This script requires the 'matgeom', 'statistics' and 'io' packages to be loaded.
 % It also relies on the functions 'longbone_Geometry', 'longbone_maxDistance.m',
 % 'slice_Mesh_Plane.m', 'simple_polygon3D.m', 'read_MeshlabPoints.m', 'readObj.oct'
 % and 'write_MeshlabPoints.m' that must be present in the working directory.
@@ -69,7 +69,7 @@ bone_type = questdlg("Select bone", "Bone Selection", "Humerus", "Femur", "Tibia
 
 % load required packages
 pkg load statistics
-pkg load geometry
+pkg load matgeom
 pkg load io;
 
 % list the filenames with .obj extension in the working folder

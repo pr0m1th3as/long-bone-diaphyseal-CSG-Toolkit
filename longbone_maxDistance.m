@@ -1,4 +1,4 @@
-% Copyright (C) 2018 Andreas Bertsatos <andreas.bertsatos@gmail.com>
+% Copyright (C) 2018-2020 Andreas Bertsatos <abertsatos@biol.uoa.gr>
 %
 % This program is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free Software
@@ -38,7 +38,7 @@ function [varargout] = longbone_maxDistance(v)
   %
   %     e.g. [maxDistance, maxD_v1, maxD_v2] = longbone_maxDistance(v)
   %
-  % The function requires the 'geometry' and 'statistics' packages to be loaded.
+  % The function requires the 'matgeom' and 'statistics' packages to be loaded.
   
   % find the extreme vertices of the mesh for each axis
   [w,iw] = min(v);
@@ -57,6 +57,7 @@ function [varargout] = longbone_maxDistance(v)
   max_d = max(max(d));
   % find corresponding vertices
   [q1, q2] = find(d==max_d);
+	
   % check if indices match
   if q1(1)==q2(2) && q1(2)==q2(1)
     maxd_V1 = extreme_V(q1(1),:);
@@ -64,6 +65,7 @@ function [varargout] = longbone_maxDistance(v)
   else
     printf("There is something wrong! Check your input data.");
   endif
+	
   % find vertices that lie outside the boundaries of initial most distant vertices
   % iterate three times to ensure that maximum distance is found
   len = distancePoints(maxd_V1,v);
@@ -106,6 +108,3 @@ function [varargout] = longbone_maxDistance(v)
     varargout{3} = maxd_V2;
   endif
 endfunction
-
-
-

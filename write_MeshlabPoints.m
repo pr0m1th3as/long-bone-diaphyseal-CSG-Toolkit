@@ -35,6 +35,7 @@ function write_MeshlabPoints(varargin)
   if length(varargin) < 3 || length(varargin) > 4
     error 'wrong number of input arguments';
   endif
+	
   % check first two arguments are strings
   if !ischar(varargin{1}(:)') || !ischar(varargin{2}(:)')
     error 'first two input arguments should be char strings';
@@ -42,6 +43,7 @@ function write_MeshlabPoints(varargin)
     filename = varargin{1}(:)';
     meshname = varargin{2}(:)';
   endif
+	
   % chech third input argument
   if length(varargin) == 3 && size(varargin{3},2) == 4
     MLP = varargin{3}(:,[2:4]);
@@ -62,8 +64,7 @@ function write_MeshlabPoints(varargin)
   % open .pp file in writing mode and append the required headers
   fid = fopen(filename,'wt');
   fprintf(fid,"<!DOCTYPE PickedPoints>\n<PickedPoints>\n <DocumentData>\n");
-  % get time, date and user from the system to use it in the file's
-  % DocumentData section
+  % get time, date and user from the system to use it in the file's DocumentData section
   [a, user] = system("users");
   user = user(1:end-1);     % remove trailing newline char from user string
   a = clock;
@@ -81,6 +82,7 @@ function write_MeshlabPoints(varargin)
  z=""%0.4f""/>\n", pointindex(i), MLP(i,1), MLP(i,2), MLP(i,3));
     endfor
   endif
+	
   % check for three input arguments and add the points to the file
   if exist('namelist')
     for i = 1:length(namelist)
@@ -90,6 +92,4 @@ function write_MeshlabPoints(varargin)
   endif
   fprintf(fid, "</PickedPoints>");
   fclose(fid);
-  
 endfunction
-
