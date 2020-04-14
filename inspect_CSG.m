@@ -27,14 +27,14 @@
 % and if it is available it utilizes the 'readObj' and 'longbone_maxDistance' functions to measure
 % the bone's maximum length and include it in the data, otherwisea a "NaN" value is appended.
 %
-% Note that the script relies on the 'io >= 2.4.12' and the 'matgeom >= 1.2.2' packages. If not
-% available, you can install their latest version by invoking the following commands
-% 		pkg install -forge matgeom
-%			pkg install -forge io
+% Note that the script relies on the 'io' >= 2.4.12, 'matgeom' >= 1.2.2 and 'statistics' >= 1.4.1
+% packages. If not available, you can install their latest version by invoking
+% 		pkg install -forge 'package_name'
 
 % check and load required packages
 pkg load io;
 pkg load matgeom;
+pkg load statistics;
 
 % list the filenames with geometry-*.csv pattern in the working folder
 filenames = dir("geometry-*.csv");
