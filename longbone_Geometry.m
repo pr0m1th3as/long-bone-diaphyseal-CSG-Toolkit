@@ -90,9 +90,9 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   %                             of the cross section ordered counter clockwise
   %
   % The function requires the 'io', 'matgeom' & 'statistics' packages to be loaded.
-  % It also relies on the functions 'longbone_maxDistance.m', 'slice_Mesh_Plane.m',
-  % 'simple_polygon3D.m', 'read_MeshlabPoints.m', 'write_MeshlabPoints.m' and
-  % 'readObj.oct' that must be present in the working directory.
+  % It also relies on the functions 'longbone_maxDistance', 'simple_polygon3D', 
+  % 'slice_Mesh_Plane', 'read_MeshlabPoints', 'write_MeshlabPoints,' and 'readObj',
+  % which must be present in the working directory.
   
   % check for number of input variables
   if nargin < 2 || nargin > 3
@@ -112,17 +112,14 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
     printf("bone should be defined either as humerus, femur of tibia\n");
     return;
   endif
-    
+	
   % load vertices and faces of triangular mesh from obj file
   [v,f] = readObj(filename);
-
   % find the maximum distance of the bone
   [maxDistance, maxd_V1, maxd_V2] = longbone_maxDistance(v);
-
   % calculate the normal vector and the 5 points in R3 that define the 5 slicing
   % planes at 20, 35, 50, 65 and 80% of the maximum length of the bone
   normal = (maxd_V2 - maxd_V1) ./ sqrt(sum((maxd_V2 - maxd_V1).^2));
-
   point_1 = maxd_V1 + (maxd_V2 - maxd_V1) .* 0.20;
   point_2 = maxd_V1 + (maxd_V2 - maxd_V1) .* 0.35;
   point_3 = maxd_V1 + (maxd_V2 - maxd_V1) .* 0.50;
@@ -135,21 +132,21 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   plane_3 = slice_Mesh_Plane(v,f,point_3,normal);
   plane_4 = slice_Mesh_Plane(v,f,point_4,normal);
   plane_5 = slice_Mesh_Plane(v,f,point_5,normal);
-
+	
   % for each cross section calculate the 3D coordinates of its centroid and area
   CS_Geometry(1) = simple_polygon3D(plane_1, normal);
   CS_Geometry(2) = simple_polygon3D(plane_2, normal);
   CS_Geometry(3) = simple_polygon3D(plane_3, normal);
   CS_Geometry(4) = simple_polygon3D(plane_4, normal);
   CS_Geometry(5) = simple_polygon3D(plane_5, normal);
-
+	
   % store the centroids of the initial cross-sectional areas
   Centroid_1 = CS_Geometry(1).Centroid;
   Centroid_2 = CS_Geometry(2).Centroid;
   Centroid_3 = CS_Geometry(3).Centroid;
   Centroid_4 = CS_Geometry(4).Centroid;
   Centroid_5 = CS_Geometry(5).Centroid;
-  
+
   % check if orientation points are provided as a third input argument
   % otherwise reuse the mesh filename by appending the required extension
   % for Meshlab point files
@@ -362,34 +359,33 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
     endfor
   endif
   
-  % flush the screen output to display the results during iterations through
-  % multiple mesh files
+	% flush the screen output to display the results during iterations through multiple mesh files
   page_screen_output(0);
   page_output_immediately(1);
   % print initial user defined MLA_points
   printf("\nUser defined MLA points A and B are:\n");
-  printf("Ax: %f Ay: %f Az: %f and Bx: %f By: %f Bz: %f\n", ...
-          MLA_points(1,:), MLA_points(2,:));
-  % find which optimized MLA points correspond to the user defined pair
+  printf("Ax: %f Ay: %f Az: %f and Bx: %f By: %f Bz: %f\n", MLA_points(1,:), MLA_points(2,:));
+  
+	% find which optimized MLA points correspond to the user defined pair
   d1 = distancePoints(MLA_points(1,:), MLA_optimal_point1);
   d2 = distancePoints(MLA_points(1,:), MLA_optimal_point2);
   if d1 > d2
-    MLA_optimal_point_A = MLA_optimal_point2;
-    MLA_optimal_point_B = MLA_optimal_point1;
+    MLA_opt_point_A = MLA_optimal_point2;
+    MLA_opt_point_B = MLA_optimal_point1;
   else
-    MLA_optimal_point_A = MLA_optimal_point1;
-    MLA_optimal_point_B = MLA_optimal_point2;
+    MLA_opt_point_A = MLA_optimal_point1;
+    MLA_opt_point_B = MLA_optimal_point2;
   endif
   % print optimized MLA_points
   printf("\nOptimized MLA points A and B are:\n");
-  printf("Ax: %f Ay: %f Az: %f and Bx: %f By: %f Bz: %f\n", ...
-          MLA_optimal_point_A, MLA_optimal_point_B);
+  printf("Ax: %f Ay: %f Az: %f and Bx: %f By: %f Bz: %f\n", MLA_opt_point_A, MLA_opt_point_B);
   % if orientation points were retrived from a Meshlab point file
   % save user defined and optimized MLA point back to the Meshlab Point file
   if nargin != 3
-    MLP = [MLA_points([1:2],:); MLA_optimal_point_A; MLA_optimal_point_B];
+    MLP = [MLA_points([1:2],:); MLA_opt_point_A; MLA_opt_point_B];
     write_MeshlabPoints(filenamePP, filename, MLP);
   endif
+	
   % calculate new normals for each final cross section at 20, 35, 50, 65 and 80%
   % all normals should be pointing upwards, that is from distal towards proximal
   n1 = (Centroid_1 - Centroid_2)./sqrt(sum((Centroid_1 - Centroid_2).^2));
@@ -397,14 +393,14 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   n3 = (Centroid_2 - Centroid_4)./sqrt(sum((Centroid_2 - Centroid_4).^2));
   n4 = (Centroid_3 - Centroid_5)./sqrt(sum((Centroid_3 - Centroid_5).^2));
   n5 = (Centroid_4 - Centroid_5)./sqrt(sum((Centroid_4 - Centroid_5).^2));
-
+	
   % calculate the sectioning points for each plane
   section_1 = slice_Mesh_Plane(v,f,Centroid_1,n1);
   section_2 = slice_Mesh_Plane(v,f,Centroid_2,n2);
   section_3 = slice_Mesh_Plane(v,f,Centroid_3,n3);
   section_4 = slice_Mesh_Plane(v,f,Centroid_4,n4);
   section_5 = slice_Mesh_Plane(v,f,Centroid_5,n5);
-
+	
   % for each cross section calculate the 3D coordinates of its centroid and area
   [CS_Geometry(1), SMoA(1), polyline(1)] = simple_polygon3D(section_1, n1, CorPlane_normal);
   [CS_Geometry(2), SMoA(2), polyline(2)] = simple_polygon3D(section_2, n2, CorPlane_normal);
@@ -413,13 +409,12 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   [CS_Geometry(5), SMoA(5), polyline(5)] = simple_polygon3D(section_5, n5, CorPlane_normal);
 
   % store the normals for each sectioning plane and the normal of the coronal plane
-  CS_Geometry(1).Slice_n = n1;      CS_Geometry(1).Coronal_n = CorPlane_normal;
-  CS_Geometry(2).Slice_n = n2;      CS_Geometry(2).Coronal_n = CorPlane_normal;
-  CS_Geometry(3).Slice_n = n3;      CS_Geometry(3).Coronal_n = CorPlane_normal;
-  CS_Geometry(4).Slice_n = n4;      CS_Geometry(4).Coronal_n = CorPlane_normal;
-  CS_Geometry(5).Slice_n = n5;      CS_Geometry(5).Coronal_n = CorPlane_normal;
-  
-  
+  CS_Geometry(1).Slice_n = n1; CS_Geometry(1).Coronal_n = CorPlane_normal;
+  CS_Geometry(2).Slice_n = n2; CS_Geometry(2).Coronal_n = CorPlane_normal;
+  CS_Geometry(3).Slice_n = n3; CS_Geometry(3).Coronal_n = CorPlane_normal;
+  CS_Geometry(4).Slice_n = n4; CS_Geometry(4).Coronal_n = CorPlane_normal;
+  CS_Geometry(5).Slice_n = n5; CS_Geometry(5).Coronal_n = CorPlane_normal;
+    
   % print results for centroids and cross sectional areas
   printf("\n%s in %s has a maximum distance of %f mm\n\n", type, filename, maxDistance);
   printf("Cross section at 20%% has an area of %f mm2, perimeter of %f mm \n\
@@ -438,6 +433,3 @@ and centroid coordinates are: x:%f y:%f z:%f\n\n",...
 and centroid coordinates are: x:%f y:%f z:%f\n\n",...
           CS_Geometry(5).Area, CS_Geometry(5).Perimeter, CS_Geometry(5).Centroid);
 endfunction
-
-
-

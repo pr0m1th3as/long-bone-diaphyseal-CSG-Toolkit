@@ -59,10 +59,10 @@
 % .obj file must explicitly contain a single bone. Coordinates of the triangular
 % meshes are considered to be in mm.
 %
-% This script requires the 'matgeom', 'statistics' and 'io' packages to be loaded.
-% It also relies on the functions 'longbone_Geometry', 'longbone_maxDistance.m',
-% 'slice_Mesh_Plane.m', 'simple_polygon3D.m', 'read_MeshlabPoints.m', 'readObj.oct'
-% and 'write_MeshlabPoints.m' that must be present in the working directory.
+% This script requires the 'io', 'matgeom' & 'statistics' packages to be loaded.
+% It also relies on the functions 'longbone_Geometry', 'longbone_maxDistance',
+% 'slice_Mesh_Plane', 'simple_polygon3D', 'read_MeshlabPoints', 'write_MeshlabPoints',
+% and 'readObj', which must be present in the working directory.
 
 % define the type of bone contained in the mesh files
 bone_type = questdlg("Select bone", "Bone Selection", "Humerus", "Femur", "Tibia", "Humerus");
@@ -78,6 +78,7 @@ filenames = dir("*.obj");
 % calculate the geometric properties for each 
 for i = 1:length(filenames)
   filename = strcat(filenames(i).name);
+	
   [CS_Geometry, SMoA, polyline] = longbone_Geometry(filename, bone_type);
   
   geometry(:,1) = [CS_Geometry(1).Area; CS_Geometry(2).Area;...
@@ -90,17 +91,14 @@ for i = 1:length(filenames)
     CS_Geometry(3).Slice_n; CS_Geometry(4).Slice_n; CS_Geometry(5).Slice_n];
   geometry(:,[9:11]) = [CS_Geometry(1).Coronal_n; CS_Geometry(2).Coronal_n;...
     CS_Geometry(3).Coronal_n; CS_Geometry(4).Coronal_n; CS_Geometry(5).Coronal_n];
-  inertia(1,:) = [SMoA(1).Ix, SMoA(1).Iy, SMoA(1).Ixy,...
-                  SMoA(1).Imin, SMoA(1).Imax, SMoA(1).theta];
-  inertia(2,:) = [SMoA(2).Ix, SMoA(2).Iy, SMoA(2).Ixy,...
-                  SMoA(2).Imin, SMoA(2).Imax, SMoA(2).theta];
-  inertia(3,:) = [SMoA(3).Ix, SMoA(3).Iy, SMoA(3).Ixy,...
-                  SMoA(3).Imin, SMoA(3).Imax, SMoA(3).theta];
-  inertia(4,:) = [SMoA(4).Ix, SMoA(4).Iy, SMoA(4).Ixy,...
-                  SMoA(4).Imin, SMoA(4).Imax, SMoA(4).theta];
-  inertia(5,:) = [SMoA(5).Ix, SMoA(5).Iy, SMoA(5).Ixy,...
-                  SMoA(5).Imin, SMoA(5).Imax, SMoA(5).theta];
-  polygon2D([1:length(polyline(1).poly2D)],[1:2]) = polyline(1).poly2D;
+  
+	inertia(1,:) = [SMoA(1).Ix, SMoA(1).Iy, SMoA(1).Ixy, SMoA(1).Imin, SMoA(1).Imax, SMoA(1).theta];
+  inertia(2,:) = [SMoA(2).Ix, SMoA(2).Iy, SMoA(2).Ixy, SMoA(2).Imin, SMoA(2).Imax, SMoA(2).theta];
+  inertia(3,:) = [SMoA(3).Ix, SMoA(3).Iy, SMoA(3).Ixy, SMoA(3).Imin, SMoA(3).Imax, SMoA(3).theta];
+  inertia(4,:) = [SMoA(4).Ix, SMoA(4).Iy, SMoA(4).Ixy, SMoA(4).Imin, SMoA(4).Imax, SMoA(4).theta];
+  inertia(5,:) = [SMoA(5).Ix, SMoA(5).Iy, SMoA(5).Ixy, SMoA(5).Imin, SMoA(5).Imax, SMoA(5).theta];
+  
+	polygon2D([1:length(polyline(1).poly2D)],[1:2]) = polyline(1).poly2D;
   polygon2D([1:length(polyline(2).poly2D)],[3:4]) = polyline(2).poly2D;
   polygon2D([1:length(polyline(3).poly2D)],[5:6]) = polyline(3).poly2D;
   polygon2D([1:length(polyline(4).poly2D)],[7:8]) = polyline(4).poly2D;
