@@ -13,14 +13,14 @@ before their initial use (the .oct binary files are provided for reference purpo
 These can be compiled from their respective source file 'readObj.cc' and 'slice_Mesh_Plane.cc'
 from within GNU Octave environment by issuing the following commands
 
-     mkoctfile readObj.cc
-		 mkoctfile slice_Mesh_Plane.cc
+	mkoctfile readObj.cc
+	mkoctfile slice_Mesh_Plane.cc
 
 The CSG Toolkit can be called in batch processing mode using the 'longbone_Analysis.m'
 script which can handle all available 3D models found in OBJ format in the working
 directory as long as a specific bone, i.e. humerus, femur or tibia, is selected. Type
 
-     help longbone_Analysis
+	help longbone_Analysis
 
 for information about its usage. The CSG Toolkit also provides functionality for
 graphical representation of the cross-sectional contours and their respective CSG
@@ -31,7 +31,7 @@ be used to facilitate their visual inspection according to the files present in 
 directory. Furthermore, 'inspect_CSG.m' will assemble all calculated values in tabular
 form and save them in a CSV file. Type 
 
-     help inspect_CSG
+	help inspect_CSG
 
 for more information about how to use 'inspect_CSG.m' and the layout of the resulting CSV file.
 
