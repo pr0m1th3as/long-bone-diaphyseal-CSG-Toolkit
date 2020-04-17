@@ -143,6 +143,7 @@ vector<VCoord> sliceMesh(vector<Mesh> Mesh3D, VCoord point, VCoord normal)
 	}
 	return iPoints;
 }
+
 DEFUN_DLD(slice_Mesh_Plane, args, nargout, 
           "-*- texinfo -*-\n\
 @deftypefn{function} @var{cross_section} = slice_Mesh_Plane(@var{v},@var{f},@var{point},@var{normal})\n\
