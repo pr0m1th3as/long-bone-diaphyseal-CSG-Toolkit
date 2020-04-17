@@ -7,12 +7,14 @@ can be applied to any 3D digital model of a humerus, femur or tibia bone represe
 as a triangular mesh in a Wavefront OBJ file format.
 
 The CSG Toolkit requires the 'io >= 2.4.12', 'statistical >= 1.4.1' and 'matgeom >= 1.2.1'
-packages to be installed. Reading the .obj mesh files is performed with the readObj.oct file,
-which should be compiled before its use (the .oct binary is provided for reference purposes)
-This can be compiled from the source file 'readObj.cc' from within GNU Octave environment by
-issuing the following command
+packages to be installed. Reading the .obj mesh files and calculating the cross sections
+relies on the 'readObj' and 'slice_Mesh_Plane' functions respectively, which should be compiled
+before their initial use (the .oct binary files are provided for reference purposes).
+These can be compiled from their respective source file 'readObj.cc' and 'slice_Mesh_Plane.cc'
+from within GNU Octave environment by issuing the following commands
 
      mkoctfile readObj.cc
+		 mkoctfile slice_Mesh_Plane.cc
 
 The CSG Toolkit can be called in batch processing mode using the 'longbone_Analysis.m'
 script which can handle all available 3D models found in OBJ format in the working
@@ -41,5 +43,7 @@ skeletal collection), is also freely available at doi:10.5281/zenodo.1466962 and
 may be used with the CSG Toolkit for demonstrating its operation. Please, when using this toolkit,
 cite the following reference:
 
-Bertsatos A, Chovalopoulou M-E. 2019. A novel method for analyzing long bone diaphyseal cross-sectional geometry. A GNU Octave CSG Toolkit. Forensic Science International 297: 65–71. DOI: 10.1016/j.forsciint.2019.01.041
+Bertsatos A, Chovalopoulou M-E. 2019. A novel method for analyzing long bone diaphyseal 
+cross-sectional geometry. A GNU Octave CSG Toolkit. Forensic Science International 297: 65–71. 
+DOI: 10.1016/j.forsciint.2019.01.041
 
