@@ -1,0 +1,27 @@
+Summary of important changes for releases of the long-bone-diaphyseal-CSG-Toolkit
+===============================================================================
+CSG-Toolkit-1.0.0  Release Date: 2018-04-10  Release Manager: Andreas Bertsatos
+===============================================================================
+
+** Initial release.
+
+===============================================================================
+CSG-Toolkit-1.0.1  Release Date: 2018-19-10  Release Manager: Andreas Bertsatos
+===============================================================================
+
+** First official release.
+
+===============================================================================
+CSG-Toolkit-1.1.0  Release Date: 2020-07-05  Release Manager: Andreas Bertsatos
+===============================================================================
+
+* Updated dependency from geometry<=3.0.0 to matgeom>=1.2.1 package
+* c++ implementation of the 'slice_Mesh_Plane.m' function, which posed
+a bottlenen in performance. Processing time of a typical 300k faces model
+has been reduced from ~50 seconds to less than 3 seconds.
+* An additional function 'inspect_CSG.m' has been added to help visualizing
+the analyzed models' cross-sections in batch mode and merge all calculated
+variables from batch-produced csv files by 'longbone_Analysis.m' into a single
+file. Type 'help inspect_CSG' for more info.
+
+===============================================================================
