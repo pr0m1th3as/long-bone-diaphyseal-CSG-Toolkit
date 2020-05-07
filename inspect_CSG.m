@@ -63,53 +63,53 @@ complete(1,46) = {"Imax 80%"}; complete(1,47) = {"Theta 80%"};
 % for each available model, extract the model name and call the visualization function
 for i = 1:length(filenames)
   bone_id = strcat(filenames(i).name(10:end-4));
-	[geometry, inertia] = visualize_CrossSections(bone_id);
-	btn = questdlg ("Are CSG properties shown properly?", bone_id, "Yes", "No");
-	if (strcmp (btn, "Yes"))
-		close all;
-		id += 1;
-		% read full data from relevant geometry csv files
-		g_filename = strcat("geometry-", bone_id, ".csv");
-		full_geometry = csvread(g_filename);
-		% write sample's id
-		complete(i+1,1) = {bone_id};
-		% check if 3D model's OBJ file is present in the working directory and in such case
-		% calculate its max distance and append it in the cell array, otherwise append a NaN value
+  [geometry, inertia] = visualize_CrossSections(bone_id);
+  btn = questdlg ("Are CSG properties shown properly?", bone_id, "Yes", "No");
+  if (strcmp (btn, "Yes"))
+    close all;
+    id += 1;
+    % read full data from relevant geometry csv files
+    g_filename = strcat("geometry-", bone_id, ".csv");
+    full_geometry = csvread(g_filename);
+    % write sample's id
+    complete(i+1,1) = {bone_id};
+    % check if 3D model's OBJ file is present in the working directory and in such case
+    % calculate its max distance and append it in the cell array, otherwise append a NaN value
     obj_filename = strcat(bone_id, ".obj");
-		if exist(obj_filename)==2
-			[v,f] = readObj(obj_filename);
-			maxD = longbone_maxDistance(v);
-			complete(i+1,2) = {maxD};
-		else
-			complete(i+1,2) = {NaN};
-		endif
-		% read cross sectional plane vectors, compute dihedral angles and append them in matrix
-		a1_2 = rad2deg(anglePoints3d(full_geometry(1,[6:8]), full_geometry(2,[6:8])));
-		a2_3 = rad2deg(anglePoints3d(full_geometry(2,[6:8]), full_geometry(3,[6:8])));
-		a3_4 = rad2deg(anglePoints3d(full_geometry(3,[6:8]), full_geometry(4,[6:8])));
-		a4_5 = rad2deg(anglePoints3d(full_geometry(4,[6:8]), full_geometry(5,[6:8])));
-		asum = a1_2 + a2_3 + a3_4 + a4_5;
-		complete(i+1,3)={a1_2};
-		complete(i+1,4)={a2_3};
-		complete(i+1,5)={a3_4};
-		complete(i+1,6)={a4_5};
-		complete(i+1,7)={asum};
-		% read CSG properties and append them in matrix
-		complete(i+1,[8:47]) = {geometry(1).Area, geometry(1).Perimeter, inertia(1).Ix, inertia(1).Iy, ...
-															inertia(1).Ixy, inertia(1).Imin, inertia(1).Imax, inertia(1).theta, ...
-															geometry(2).Area, geometry(2).Perimeter, inertia(2).Ix, inertia(2).Iy, ...
-															inertia(2).Ixy, inertia(2).Imin, inertia(2).Imax, inertia(2).theta, ...
-															geometry(3).Area, geometry(3).Perimeter, inertia(3).Ix, inertia(3).Iy, ...
-															inertia(3).Ixy, inertia(3).Imin, inertia(3).Imax, inertia(3).theta, ...
-															geometry(4).Area, geometry(4).Perimeter, inertia(4).Ix, inertia(4).Iy, ...
-															inertia(4).Ixy, inertia(4).Imin, inertia(4).Imax, inertia(4).theta, ...
-															geometry(5).Area, geometry(5).Perimeter, inertia(5).Ix, inertia(5).Iy, ...
-															inertia(5).Ixy, inertia(5).Imin, inertia(5).Imax, inertia(5).theta};
-	elseif (strcmp (btn, "No"))
-		close all;
-	else
-		close all;
-		break;
-	endif
+    if exist(obj_filename)==2
+      [v,f] = readObj(obj_filename);
+      maxD = longbone_maxDistance(v);
+      complete(i+1,2) = {maxD};
+    else
+      complete(i+1,2) = {NaN};
+    endif
+    % read cross sectional plane vectors, compute dihedral angles and append them in matrix
+    a1_2 = rad2deg(anglePoints3d(full_geometry(1,[6:8]), full_geometry(2,[6:8])));
+    a2_3 = rad2deg(anglePoints3d(full_geometry(2,[6:8]), full_geometry(3,[6:8])));
+    a3_4 = rad2deg(anglePoints3d(full_geometry(3,[6:8]), full_geometry(4,[6:8])));
+    a4_5 = rad2deg(anglePoints3d(full_geometry(4,[6:8]), full_geometry(5,[6:8])));
+    asum = a1_2 + a2_3 + a3_4 + a4_5;
+    complete(i+1,3)={a1_2};
+    complete(i+1,4)={a2_3};
+    complete(i+1,5)={a3_4};
+    complete(i+1,6)={a4_5};
+    complete(i+1,7)={asum};
+    % read CSG properties and append them in matrix
+    complete(i+1,[8:47]) = {geometry(1).Area, geometry(1).Perimeter, inertia(1).Ix, inertia(1).Iy, ...
+                            inertia(1).Ixy, inertia(1).Imin, inertia(1).Imax, inertia(1).theta, ...
+                            geometry(2).Area, geometry(2).Perimeter, inertia(2).Ix, inertia(2).Iy, ...
+                            inertia(2).Ixy, inertia(2).Imin, inertia(2).Imax, inertia(2).theta, ...
+                            geometry(3).Area, geometry(3).Perimeter, inertia(3).Ix, inertia(3).Iy, ...
+                            inertia(3).Ixy, inertia(3).Imin, inertia(3).Imax, inertia(3).theta, ...
+                            geometry(4).Area, geometry(4).Perimeter, inertia(4).Ix, inertia(4).Iy, ...
+                            inertia(4).Ixy, inertia(4).Imin, inertia(4).Imax, inertia(4).theta, ...
+                            geometry(5).Area, geometry(5).Perimeter, inertia(5).Ix, inertia(5).Iy, ...
+                            inertia(5).Ixy, inertia(5).Imin, inertia(5).Imax, inertia(5).theta};
+  elseif (strcmp (btn, "No"))
+    close all;
+  else
+    close all;
+    break;
+  endif
 endfor
 cell2csv("Complete Data.csv", complete);
