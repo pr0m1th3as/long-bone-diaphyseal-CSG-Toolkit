@@ -1,4 +1,4 @@
-% Copyright (C) 2018-2020 Andreas Bertsatos <abertsatos@biol.uoa.gr>
+% Copyright (C) 2018-2021 Andreas Bertsatos <abertsatos@biol.uoa.gr>
 %
 % This program is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free Software
@@ -42,27 +42,32 @@ function [varargout] = read_MeshlabPoints(filename)
   %   name_list(1) = "name of first point"
   %
   %
+  
+  % declare output variables
   MLP = zeros(1,4);
   name_list = {''};
-  
-  
+  % scan file and identify line containing points
   point_index = 1;
   fid = fopen(filename,'rt');
   line = fgets(fid);
   while ischar(line)
     if strfind(line, "<point")
+      % get indices of starting places for each axis coordinate
       x_start = strfind(line,"x=\"") + 3;
       y_start = strfind(line,"y=\"") + 3;
       z_start = strfind(line,"z=\"") + 3;
       name_start = strfind(line,"name=\"") + 6;
       quotes = strfind(line,"\"");
+      % get indices of ending places for each axis coordinate
       x_end = min(quotes(find(quotes>x_start))) - 1;
       y_end = min(quotes(find(quotes>y_start))) - 1;
       z_end = min(quotes(find(quotes>z_start))) - 1;
       name_end = min(quotes(find(quotes>name_start))) - 1;
+      % get values
       x = str2num(line(x_start:x_end));
       y = str2num(line(y_start:y_end));
       z = str2num(line(z_start:z_end));
+      % check for numeric values for each point's name field
       if (isnumeric(str2num(line(name_start:name_end))))
         name = str2num(line(name_start:name_end));
         name_list(point_index) = str2num(line(name_start:name_end));
