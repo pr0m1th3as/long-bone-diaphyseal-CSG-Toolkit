@@ -78,16 +78,16 @@ function write_MeshlabPoints(varargin)
   % check for three input arguments and add the points to the file
   if exist('pointindex')
     for i = 1:length(pointindex)
-      fprintf(fid, " <point active=""1"" name=""%d"" x=""%0.4f"" y=""%0.4f""\
-			z=""%0.4f""/>\n", pointindex(i), MLP(i,1), MLP(i,2), MLP(i,3));
+      fprintf(fid, " <point active=""1"" name=""%d"" x=""%0.4f"" y=""%0.4f"" z=""%0.4f""/>\n",...
+              pointindex(i), MLP(i,1), MLP(i,2), MLP(i,3));
     endfor
   endif
 	
   % check for three input arguments and add the points to the file
   if exist('namelist')
     for i = 1:length(namelist)
-      fprintf(fid, " <point active=""1"" name=""%s"" x=""%0.4f"" y=""%0.4f""\
-			z=""%0.4f""/>\n", namelist{i}, MLP(i,1), MLP(i,2), MLP(i,3));
+      fprintf(fid, " <point active=""1"" name=""%s"" x=""%0.4f"" y=""%0.4f"" z=""%0.4f""/>\n",...
+              namelist{i}, MLP(i,1), MLP(i,2), MLP(i,3));
     endfor
   endif
   fprintf(fid, "</PickedPoints>");
