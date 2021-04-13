@@ -180,7 +180,7 @@ points of the 3D mesh represented by 'v' and 'f' input arguments.\n\
   {
     std::cout << "Vertex matrix should be Nx3 containing x,y,z coordinates.\n";
     return octave_value_list();
-
+  }
   // check mesh for being triangular
   if (!args(1).is_matrix_type() || args(1).columns() != 3)
   {
@@ -216,7 +216,7 @@ points of the 3D mesh represented by 'v' and 'f' input arguments.\n\
     tmpV3x = V(F(i,2) - 1, 0); tmpV3y = V(F(i,2) - 1, 1); tmpV3z = V(F(i,2) - 1, 2);
     Mesh temp_mesh = {tmpV1x, tmpV1y, tmpV1z, tmpV2x, tmpV2y, tmpV2z, tmpV3x, tmpV3y, tmpV3z};
     Mesh3D.push_back(temp_mesh);
-  }	
+  }
   // store point and normal from input arguments
   Matrix P = args(2).array_value();
   Matrix N = args(3).array_value();
