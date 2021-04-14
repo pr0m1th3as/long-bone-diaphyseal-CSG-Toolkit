@@ -21,7 +21,9 @@ this program; if not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <octave/oct.h>
 
-struct Coord
+using namespace std;
+
+struct VCoord
 {
   double x, y, z;
 };
@@ -37,20 +39,24 @@ struct TCoord
 
 DEFUN_DLD (readObj, args, nargout, 
           "-*- texinfo -*-\n\
-@deftypefn{Loadable function} @var{output_arguments} = readObj(@var{filename})\n\
+@deftypefn{Loadable function} @var{output_arguments} = readObj(@var{filename}, opt)\
+\n\n\
+Example: [@var{v}, @var{f}] = readObj(\"3DMesh.obj\")\n\n\
+Example: [@var{v}, @var{f}] = readObj(\"3DMesh.obj\", \"info\")\n\n\
+Example: [@var{v}, @var{f}, @var{mtl}] = readObj(\"3DMesh.obj\", \"info\")\n\n\
+Example: [@var{v}, @var{f}, @var{tc}, @var{tf}] = readObj(\"3DMesh.obj\")\n\n\
 \n\
 \n\
-Example: [@var{v}, @var{f}] = readObj(\"3DMesh.obj\")\n\
-\n\
-\n\
-This function loads a triangular 3D Mesh from Wavefront Obj file and stores\n\
+This function loads a triangular 3D Mesh from Wavefront Obj file and stores \
 its elements into the appropriately defined output arguments.\n\
 \n\
-If only two output arguments are given then only the vertices and the faces of\n\
-the mesh are returned. If four arguments are given, then vertex normals and\n\
-face normals or texture coordinates and texture faces are returned, depending\n\
-on which are present. If both sets are present then @code{readObj} returns only\n\
-the texture coordinates and their corresponding faces. If six output arguments are\n\
+When called with no output arguments @code{readObj} displays info of the mesh. \
+If called with a single output argument then only the vertices are returned. \
+If only two output arguments are given then only the vertices and the faces of \
+the mesh are returned. If four arguments are given, then vertex normals and \
+face normals or texture coordinates and texture faces are returned, depending \
+on which are present. If both sets are present then @code{readObj} returns only \
+the texture coordinates and their corresponding faces. If six output arguments are \
 given then all elements are returned as numerical array in the following order:\n\
 \n\
 @var{Vertices} as an Nx3 matrix with floating point values.\n\
@@ -65,35 +71,58 @@ given then all elements are returned as numerical array in the following order:\
 \n\
 @var{Face Normals} as an Nx3 matrix with integer values.\n\
 \n\
-If odd number of output arguments are provided, then the last output argument is\n\
-used for returning the .mtl filename, where material parameters are stored.\n\
-Note that @code{readObj} handles explicitly triangular mesh objects. If Obj file\n\
-does not contain a proper triangular mesh, then an error message is returned.\n\
+If odd number of output arguments are provided, except for the case of a single \
+argument, then the last output argument isused for returning the .mtl filename, \
+where material parameters are stored. Note that @code{readObj} handles explicitly \
+triangular mesh objects. If Obj file does not contain a proper triangular mesh, \
+then an error message is returned. \
 @end deftypefn")
 {
-  // Check if there is a valid number of output arguments
-  if (nargout < 2 || nargout > 7)
+  // Check if there is a valid number of input arguments
+  if (args.length() < 1 || args.length() > 2)
   {
-    std::cout << "Invalid number of output arguments.\n";
+    cout << "Invalid number of input arguments.\n";
     return octave_value_list();
   }
   // store filename string of obj file
-  std::string file = args(0).string_value();
+  string file = args(0).string_value();
+  // Check if there is a valid number of output arguments
+  if (nargout > 7)
+  {
+    cout << "Invalid number of output arguments.\n";
+    return octave_value_list();
+  }
+  // Check if optional input argument "info" was requested
+  bool info = false;
+  if (args.length() == 2)
+  {
+    string option = args(1).string_value();
+    if (option == "info")
+    {
+      info = true;
+    }
+  }
+  // if no output arguments display info
+  if (nargout == 0)
+  {
+    info = true;
+  }
   // define string variable for storing material library file if referenced in obj
-  std::string mtl_filename;
+  string mtl_filename = "";
   // open file
-  std::ifstream inputFile(file.c_str());
+  ifstream inputFile(file.c_str());
   // define matrices for storing vertices and faces retrieved from obj
-  std::vector<Coord> vertex;
-  std::vector<Faces> face;
+  vector<VCoord> vertex;
+  vector<Faces> face;
   // define matrices for storing normals and texture coordinates from obj
-  std::vector<Coord> normals;
-  std::vector<TCoord> texture;
+  vector<VCoord> normals;
+  vector<TCoord> texture;
   // define matrices for storing face normals and face texture
-  std::vector<Faces> face_normals;
-  std::vector<Faces> face_texture;
+  vector<Faces> face_normals;
+  vector<Faces> face_texture;
   
-  // initiate counters for vertices, normals, texture and faces
+  // initiate counters for mtl, vertices, normals, texture and faces
+  octave_idx_type mtl_counter = 0;
   octave_idx_type vertex_counter = 0;
   octave_idx_type normals_counter = 0;
   octave_idx_type texture_counter = 0;
@@ -102,37 +131,38 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
   octave_idx_type faceN_counter = 0;
   
   // check that file exists
-  if(inputFile)
+  if (inputFile)
   {
     // define string for reading obj file per line
-    std::string line;
-    while (std::getline(inputFile, line))
+    string line;
+    while (getline(inputFile, line))
     {
-      if(line[0] == 'm' && line[1] == 't' && line[2] == 'l')
+      if (line[0] == 'm' && line[1] == 't' && line[2] == 'l')
       {
         int str_start = line.rfind(" ") + 1;
         if(line.find("./") != -1) {str_start = line.find("./") + 2;}
         int str_end = line.length();
         int str_len = str_end - str_start;
         mtl_filename = line.substr(str_start, str_len);
+        mtl_counter++;
       }
-      if(line[0] == 'v' && line[1] == ' ')
+      else if (line[0] == 'v' && line[1] == ' ')
       {
         float tmpx, tmpy, tmpz;
         sscanf(line.c_str(), "v %f %f %f" ,&tmpx,&tmpy,&tmpz);
-        Coord temp3D = {tmpx, tmpy, tmpz};
+        VCoord temp3D = {tmpx, tmpy, tmpz};
         vertex.push_back(temp3D);
         vertex_counter++;
       }
-      if(line[0] == 'v' && line[1] == 'n' && line[2] == ' ')
+      else if (line[0] == 'v' && line[1] == 'n' && line[2] == ' ')
       {
         float tmpx, tmpy, tmpz;
         sscanf(line.c_str(), "vn %f %f %f" ,&tmpx,&tmpy,&tmpz);
-        Coord temp3D = {tmpx, tmpy, tmpz};
+        VCoord temp3D = {tmpx, tmpy, tmpz};
         normals.push_back(temp3D);
         normals_counter++;
       }
-      if(line[0] == 'v' && line[1] == 't' && line[2] == ' ')
+      else if (line[0] == 'v' && line[1] == 't' && line[2] == ' ')
       {
         float tmpu, tmpv;
         sscanf(line.c_str(), "vt %f %f" ,&tmpu,&tmpv);
@@ -140,7 +170,7 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
         texture.push_back(tempTexture);
         texture_counter++;  
       }  
-      if(line[0] == 'f' && line[1] == ' ')
+      else if (line[0] == 'f' && line[1] == ' ')
       {
         // check for non triangular mesh
         int v1=0, v2=0, v3=0, v4=0, vt1=0, vt2=0;
@@ -148,7 +178,7 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
         sscanf(line.c_str(), "f %d %d %d %d" ,&v1,&v2,&v3,&v4);
         if (v1 > 0 && v2 > 0 && v3 > 0 && v4 > 0)
         {    
-          std::cout << "Mesh is not triangular.\n";
+          cout << "Mesh is not triangular.\n";
           return octave_value_list();
         }
         sscanf(line.c_str(), "f %d/%d %d/%d %d/%d %d/%d", 
@@ -156,7 +186,7 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
         if (v1 > 0 && v2 > 0 && v3 > 0 && v4 > 0 
             && vt1 > 0 && vt2 > 0 && vt3 > 0 && vt4 > 0)
         {    
-          std::cout << "Mesh is not triangular.\n";
+          cout << "Mesh is not triangular.\n";
           return octave_value_list();
         }
         sscanf(line.c_str(), "f %d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d", 
@@ -164,7 +194,7 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
         if (v1 > 0 && v2 > 0 && v3 > 0 && v4 > 0 && vt1 > 0 && vt2 > 0 
             && vt3 > 0 && vt4 > 0 && vn1 > 0 && vn2 > 0 && vn3 > 0 && vn4 > 0)
         {    
-          std::cout << "Mesh is not triangular.\n";
+          cout << "Mesh is not triangular.\n";
           return octave_value_list();
         }
         sscanf(line.c_str(), "f %d//%d %d//%d %d//%d %d//%d",
@@ -172,7 +202,7 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
         if (v1 > 0 && v2 > 0 && v3 > 0 && v4 > 0 && vn1 > 0 
             && vn2 > 0 && vn3 > 0 && vn4 > 0)
         {    
-          std::cout << "Mesh is not triangular.\n";
+          cout << "Mesh is not triangular.\n";
           return octave_value_list();
         }
         face_counter++;
@@ -231,7 +261,7 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
               }
               else
               {
-                std::cout << "Mesh is not triangular.\n";
+                cout << "Mesh is not triangular.\n";
                 return octave_value_list();
               }
             }
@@ -242,18 +272,15 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
   }
   else
   {
-    std::cout << "Failure opening file.\n";
+    cout << "Failure opening file.\n";
     return octave_value_list();
   }
   
-    
-  std::cout << "Model file contained " << vertex_counter << " vertices and "
-            << face_counter << " faces.\n";
-
   // check if vertex coordinates exist and store them in Octave array
   Matrix V (vertex_counter, 3);
   if (vertex_counter > 0)
   {
+    if (info) { cout << "Mesh contains " << vertex_counter << " vertices "; }
     //Matrix V (vertex_counter, 3);
     for (octave_idx_type i = 0; i < vertex_counter; i++)
     {
@@ -264,44 +291,14 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
   }
   else
   {
-    std::cout << "Mesh does not contain any vertices.\n";
+    if (info) { cout << "Mesh does not contain any vertices.\n"; }
     return octave_value_list();
-  }
-  // check if texture coordinates exist and store them in Octave array
-  Matrix VT (texture_counter, 2);
-  if (texture_counter > 0)
-  {
-    std::cout << "Mesh contains texture.\n";
-    for (octave_idx_type i = 0; i < texture_counter; i++)
-    {
-      VT(i,0) = texture[i].u;
-      VT(i,1) = texture[i].v;
-    }
-  }
-  else
-  {
-    std::cout << "Mesh does not contain any texture.\n";
-  }
-  // check if normal coordinates exist and store them in Octave array
-  Matrix VN (normals_counter, 3);
-  if (normals_counter > 0)
-  {
-    std::cout << "Mesh contains normals.\n";
-    for (octave_idx_type i = 0; i < normals_counter; i++)
-    {
-      VN(i,0) = normals[i].x;
-      VN(i,1) = normals[i].y;
-      VN(i,2) = normals[i].z;
-    }
-  }
-  else
-  {
-    std::cout << "Mesh does not contain any normals.\n";
   }
   // check if faces exist and store them in Octave array
   Matrix F (face_counter, 3);
   if (face_counter > 0)
   {
+    if (info) { cout << " and " << face_counter << " faces.\n"; }
     for (octave_idx_type i = 0; i < face_counter; i++)
     {
       F(i,0) = face[i].a;
@@ -311,8 +308,39 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
   }
   else
   {
-    std::cout << "Mesh does not contain any faces.\n";
+    if (info) { cout << "Mesh does not contain any faces.\n"; }
     return octave_value_list();
+  }
+  // check if texture coordinates exist and store them in Octave array
+  Matrix VT (texture_counter, 2);
+  if (texture_counter > 0)
+  {
+    if (info) { cout << "Mesh contains texture.\n"; }
+    for (octave_idx_type i = 0; i < texture_counter; i++)
+    {
+      VT(i,0) = texture[i].u;
+      VT(i,1) = texture[i].v;
+    }
+  }
+  else
+  {
+    if (info) { cout << "Mesh does not contain any texture.\n"; }
+  }
+  // check if normal coordinates exist and store them in Octave array
+  Matrix VN (normals_counter, 3);
+  if (normals_counter > 0)
+  {
+    if (info) { cout << "Mesh contains normals.\n"; }
+    for (octave_idx_type i = 0; i < normals_counter; i++)
+    {
+      VN(i,0) = normals[i].x;
+      VN(i,1) = normals[i].y;
+      VN(i,2) = normals[i].z;
+    }
+  }
+  else
+  {
+    if (info) { cout << "Mesh does not contain any normals.\n"; }
   }
   // check if texture faces exist and store them in Octave array
   Matrix FT (faceT_counter, 3);
@@ -327,7 +355,7 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
   }
   else
   {
-    std::cout << "Mesh does not contain any texture faces.\n";
+    if (info) { cout << "Mesh does not contain any texture faces.\n"; }
   }
   // check if face normals exist and store them in Octave array
   Matrix FN (faceN_counter, 3);
@@ -342,8 +370,10 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
   }
   else
   {
-    std::cout << "Mesh does not contain any face normals.\n";
+    if (info) { cout << "Mesh does not contain any face normals.\n"; }
   }
+  // report if material library file is referenced in the model
+  if (info) { cout << "Material library file is present\n"; }
   
   // check the number of output arguments and store the appropriate matrices
   // to the octave_value_list variable. If only two output arguments are given
@@ -360,26 +390,29 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
   
   // define return value list
   octave_value_list retval;
-  if (nargout == 2)
+  if (nargout == 1)
+  {
+    retval(0) = V;
+  }
+  else if (nargout == 2)
   {
     retval(0) = V;
     retval(1) = F;
   }
-  if (nargout == 3)
+  else if (nargout == 3)
   {
     retval(0) = V;
     retval(1) = F;
     retval(2) = mtl_filename.c_str();
-    std::cout << "Material library file is present\n";
   }
-  if (nargout == 4 && faceT_counter > 0 && texture_counter > 0)
+  else if (nargout == 4 && faceT_counter > 0 && texture_counter > 0)
   {
     retval(0) = V;
     retval(1) = F;
     retval(2) = VT;
     retval(3) = FT;
   }
-  if (nargout == 4 && faceT_counter == 0 && texture_counter == 0 
+  else if (nargout == 4 && faceT_counter == 0 && texture_counter == 0 
       && faceN_counter > 0 && normals_counter > 0)
   {
     retval(0) = V;
@@ -387,16 +420,15 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
     retval(2) = VN;
     retval(3) = FN;
   }
-  if (nargout == 5 && faceT_counter > 0 && texture_counter > 0)
+  else if (nargout == 5 && faceT_counter > 0 && texture_counter > 0)
   {
     retval(0) = V;
     retval(1) = F;
     retval(2) = VT;
     retval(3) = FT;
     retval(4) = mtl_filename.c_str();
-    std::cout << "Material library file is present\n";
   }
-  if (nargout == 5 && faceT_counter == 0 && texture_counter == 0 
+  else if (nargout == 5 && faceT_counter == 0 && texture_counter == 0 
       && faceN_counter > 0 && normals_counter > 0)
   {
     retval(0) = V;
@@ -404,9 +436,8 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
     retval(2) = VN;
     retval(3) = FN;
     retval(4) = mtl_filename.c_str();
-    std::cout << "Material library file is present\n";
   }
-  if (nargout == 6)
+  else if (nargout == 6)
   {
     retval(0) = V;
     retval(1) = F;
@@ -415,7 +446,7 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
     retval(4) = VN;
     retval(5) = FN;
   }
-  if (nargout == 7)
+  else if (nargout == 7)
   {
     retval(0) = V;
     retval(1) = F;
@@ -424,7 +455,6 @@ does not contain a proper triangular mesh, then an error message is returned.\n\
     retval(4) = VN;
     retval(5) = FN;
     retval(6) = mtl_filename.c_str();
-    std::cout << "Material library file is present\n";
   }
   return retval;
 }
