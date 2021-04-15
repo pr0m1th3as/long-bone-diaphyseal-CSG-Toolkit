@@ -15,7 +15,7 @@
 %
 %
 function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
-  % function [CS_Geometry, SMoA, polyline] = longbone_Geometry(filename,type,points)
+  % function [CS_Geometry, SMoA, polyline] = longbone_Geometry(filename,bone,points)
   %
   % This function slices the provided mesh of a humerus, femur or tibia bone
   % at 20%, 35%, 50%, 65% and 80% along the bone's maximum length and returns
@@ -105,11 +105,11 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
     return;
   else
     filename = varargin{1}(:)';
-    type = varargin{2}(:)';
+    bone = varargin{2}(:)';
   endif
   % check second argument properly defines a bone
-  if !(strcmp(type, "Humerus") || strcmp(type, "Femur") || strcmp(type, "Tibia"))
-    printf("bone should be defined either as humerus, femur of tibia\n");
+  if !(strcmp(bone, "Humerus") || strcmp(bone, "Femur") || strcmp(bone, "Tibia"))
+    printf("bone should be defined either as humerus, femur or tibia\n");
     return;
   endif
 	
@@ -167,13 +167,13 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   % comply with this standard.
   proximal = distancePoints(Centroid_1, MLA_points(1,:));
   distal = distancePoints(Centroid_5, MLA_points(1,:));
-  if (strcmp(type, "Humerus") || strcmp(type, "Femur")) && (proximal < distal)
+  if (strcmp(bone, "Humerus") || strcmp(bone, "Femur")) && (proximal < distal)
     Centroid_1 = CS_Geometry(5).Centroid;
     Centroid_2 = CS_Geometry(4).Centroid;
     Centroid_3 = CS_Geometry(3).Centroid;
     Centroid_4 = CS_Geometry(2).Centroid;
     Centroid_5 = CS_Geometry(1).Centroid;
-  elseif (strcmp(type, "Tibia")) && (proximal > distal)
+  elseif (strcmp(bone, "Tibia")) && (proximal > distal)
     Centroid_1 = CS_Geometry(5).Centroid;
     Centroid_2 = CS_Geometry(4).Centroid;
     Centroid_3 = CS_Geometry(3).Centroid;
@@ -199,7 +199,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   % the normal so that it points to the front
   %
   % for humerus bone
-  if strcmp(type, "Humerus")
+  if strcmp(bone, "Humerus")
     MLP1_C5 = Centroid_5 - MLA_points(1,:);
     if sum(MLP1_C5 .* CorPlane_normal) > 0      % MLA_points should be in front
       CorPlane_normal = CorPlane_normal * -1;
@@ -252,7 +252,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
       endif
     endfor
   % for femur bone
-  elseif strcmp(type, "Femur")
+  elseif strcmp(bone, "Femur")
     MLP1_C5 = Centroid_5 - MLA_points(1,:);
     if sum(MLP1_C5 .* CorPlane_normal) < 0      % MLA_points should be behind
       CorPlane_normal = CorPlane_normal * -1;
@@ -305,7 +305,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
       endif
     endfor
   % for tibia bone
-  elseif strcmp(type, "Tibia")
+  elseif strcmp(bone, "Tibia")
     MLP1_C1 = Centroid_1 - MLA_points(1,:);
     if sum(MLP1_C1 .* CorPlane_normal) < 0      % MLA_points should be behind
       CorPlane_normal = CorPlane_normal * -1;
@@ -379,7 +379,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   % print optimized MLA_points
   printf("\nOptimized MLA points A and B are:\n");
   printf("Ax: %f Ay: %f Az: %f and Bx: %f By: %f Bz: %f\n", MLA_opt_point_A, MLA_opt_point_B);
-  % if orientation points were retrived from a Meshlab point file
+  % if orientation points were retrieved from a Meshlab point file
   % save user defined and optimized MLA point back to the Meshlab Point file
   if nargin != 3
     MLP = [MLA_points([1:2],:); MLA_opt_point_A; MLA_opt_point_B];
@@ -416,7 +416,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   CS_Geometry(5).Slice_n = n5; CS_Geometry(5).Coronal_n = CorPlane_normal;
     
   % print results for centroids and cross sectional areas
-  printf("\n%s in %s has a maximum distance of %f mm\n\n", type, filename, maxDistance);
+  printf("\n%s in %s has a maximum distance of %f mm\n\n", bone, filename, maxDistance);
   printf("Cross section at 20%% has an area of %f mm2, perimeter of %f mm \n\
 and centroid coordinates are: x:%f y:%f z:%f\n\n",...
           CS_Geometry(1).Area, CS_Geometry(1).Perimeter, CS_Geometry(1).Centroid);
