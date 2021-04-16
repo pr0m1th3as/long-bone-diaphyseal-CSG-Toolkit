@@ -1,4 +1,4 @@
-% Copyright (C) 2018-2020 Andreas Bertsatos <abertsatos@biol.uoa.gr>
+% Copyright (C) 2018-2021 Andreas Bertsatos <abertsatos@biol.uoa.gr>
 %
 % This program is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free Software
@@ -15,7 +15,7 @@
 %
 %
 function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
-  % function [CS_Geometry, SMoA, polyline] = longbone_Geometry(filename,bone,points)
+  % function [CS_Geometry, SMoA, polyline] = longbone_Geometry(folder, filename, bones)
   %
   % This function slices the provided mesh of a humerus, femur or tibia bone
   % at 20%, 35%, 50%, 65% and 80% along the bone's maximum length and returns
@@ -24,16 +24,24 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   % This function loads a triangular mesh stored in Wavefront OBJ file along
   % with the respective Meshlab Point file that contains the two points that
   % define the mediolateral axis of the bone's anatomical orientation. Both
-  % files must be present in the working directory and share a common name.
-  % Alternatively, the user may provide the 2 points for the mediolateral axis
-  % as a third optional argument, if a Meshlab Point file is not present.
-  % 
-  % example:    points = [x1, y2, z3; x2, y2, z2];
+  % files must be present in the same directory and share a common name.
+  % If no folder is parsed as input, then the working directory is assumed.
+  % If the respective Meshlab Point file is missing, the 'longbone_Registration'
+  % is utilized to automatically register the initial alignment points.
   %
-  % The function requires at least 2 input arguments, the first be the filename
+  % The function requires at least 1 input arguments, the first be the filename
   % of the $$.obj including the file extension, i.e. 'ID_humerus.obj' and the
-  % second argument a char string defining which bone is analyzed, and may be
-  % any of three available options: "Humerus", "Femur" or "Tibia".
+  % bone will be identified automatically. When called with two input arguments
+  % there are two options:
+  % 1) the absolute path of the containing folder and the filename
+  % 2) the filename and the bone, which can be described either as a string or
+  %    a numerical vector as defined in 'longbone_Analysis' script.
+  %
+  % Additionally, the function can be called with 3 input arguments, path to
+  % folder, filename, and the bone variable as described above. When bone is
+  % parsed as a string, it can be either "Humerus", "Femur" or "Tibia"; for any
+  % other string value, the function will invoke 'longbone_Registration' for
+  % automatic bone detection.
   %
   % The mediolateral axis alignment points for the humerus need to be positioned
   % anteriorly on the trochlea and capitulum at the distal end of the humerus.
@@ -50,7 +58,10 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   % use the first two points available in the file. Furthermore, the optimized
   % points are appended in the original .pp file after the user defined points.
   % So, if more points are present in the original .pp file, these are disregarded
-  % and eventually deleted from the final .pp file after processing.
+  % and eventually deleted from the final .pp file after processing. In cases of
+  % automatically registering alignment points, these and their optimized
+  % counterparts are saved in a newly created pp file in the same folder with
+  % the .obj file following its name convention.
   %
   % Independently of the number of input arguments, 'longbone_Geometry.m'
   % returns 3 structure arrays as output arguments with the following fields.
@@ -91,30 +102,185 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   %
   % The function requires the 'io', 'matgeom' & 'statistics' packages to be loaded.
   % It also relies on the functions 'longbone_maxDistance', 'simple_polygon3D', 
-  % 'slice_Mesh_Plane', 'read_MeshlabPoints', 'write_MeshlabPoints,' and 'readObj',
-  % which must be present in the working directory.
+  % 'slice_Mesh_Plane', 'read_MeshlabPoints', 'write_MeshlabPoints', 'readObj',
+  % and 'longbone_Registration' which must be present in the working directory.
   
-  % check for number of input variables
-  if nargin < 2 || nargin > 3
-    printf("invalid number of input arguments\n");
+  % declare empty output variables so that returning does not produce error
+  CS_Geometry = [];
+  SMoA = [];
+  polyline = [];
+  
+  % check input variables and parse them accordingly
+  if nargin < 1 || nargin > 3
+    printf("Invalid number of input arguments\n");
     return;
   endif
-  % check first two arguments are strings
-  if !ischar(varargin{1}(:)') || !ischar(varargin{2}(:)')
-    printf("first two input arguments should be char strings\n");
+  % only 1 arg: filename
+  if (nargin == 1 && ischar(varargin{1}(:)'))
+    folder = "";
+    filename = varargin{1}(:)';
+    find_bone = true;
+  elseif (nargin == 1 && !ischar(varargin{1}(:)'))
+    printf("Filename must be a string\n");
+    return;
+  endif
+  % only 2 args: filename and bone or folder and filename
+  if (nargin == 2 && ischar(varargin{1}(:)') && ischar(varargin{2}(:)'))
+    bone = varargin{2}(:)';
+    % filename + bone (string)
+    if (strcmp(bone, "Humerus") || strcmp(bone, "Femur") || strcmp(bone, "Tibia"))
+      folder = "";
+      filename = varargin{1}(:)';
+      find_bone = false;
+    else  % folder and filename
+      folder = varargin{1}(:)';
+      filename = varargin{2}(:)';
+      find_bone = true;
+      bone = "All";
+    endif
+  endif
+  % only 2 args: filename and bone (numeric)
+  if (nargin == 2 && ischar(varargin{1}(:)') && isnumeric(varargin{2}))
+    folder = "";
+    filename = varargin{1}(:)';
+    bonesnum = varargin{2};
+  endif
+  % only 3 args: folder, filename, and bone (numeric)
+  if (nargin == 3 && ischar(varargin{1}(:)') && ischar(varargin{2}(:)') ...
+      && isnumeric(varargin{3}))
+    folder = varargin{1}(:)';
+    filename = varargin{2}(:)';
+    bonesnum = varargin{3};
+  endif
+  % check numeric argument for bone selection
+  if (exist("bonesnum") == 1)
+    if (length(bonesnum) == 1)
+      switch (bonesnum)
+        case 1
+          bone = "Humerus";
+          find_bone = false;
+        case 2
+          bone = "Femur";
+          find_bone = false;
+        case 3
+          bone = "Tibia";
+          find_bone = false;
+        case 4
+          bone = "All";
+          find_bone = true;
+        case 5
+          bone = "Humerus";
+          find_bone = true;
+        case 6
+          bone = "Femur";
+          find_bone = true;
+        case 7
+          bone = "Tibia";
+          find_bone = true;
+        otherwise
+          printf("Invalid numeric argument for bone selection\n");
+          return;
+       endswitch
+    endif
+    if (length(bonesnum) > 1)
+      if (any(bonesnum < 1) || any(bonesnum > 7))
+        printf("Invalid numeric argument for bone selection\n");
+        return;
+      endif
+      if (any(bonesnum==4))
+        bone = "All";
+        find_bone = true;
+      endif
+      i = 0;
+      if (any(bonesnum==1) || any(bonesnum==5))
+        i++;
+        bones(i) = {"Humerus"};
+        find_bone = true;
+      endif
+      if (any(bonesnum==2) || any(bonesnum==6))
+        i++;
+        bones(i) = {"Femur"};
+        find_bone = true;
+      endif
+      if (any(bonesnum==3) || any(bonesnum==7))
+        i++;
+        bones(i) = {"Tibia"};
+        find_bone = true;
+      endif
+      if (i == 1)
+        bone = bones{i};
+        bonesnum = 0; % so that length equals 1
+        find_bone = true;
+      endif
+      if (i == 3)
+        bone = "All";
+        find_bone = true;
+      endif
+    endif
+  endif
+  
+  % fix path by appending "/" to non empty paths
+  if !isempty(folder)
+    folder = strcat(folder, "/");
+  endif
+  
+  % check if orientation points are available in corresponding pp file
+  % otherwise automatically register new ones on the bone surface
+  % for Meshlab point files
+  filenamePP = filename([1:length(filename)-4]);
+  extension = ".pp";
+  filenamePP = strcat(filenamePP, extension);
+  if (exist(strcat(folder, filenamePP)) == 2)
+    % load Meshlab points for mediolateral axis from pp file
+    MLA_points = read_MeshlabPoints(strcat(folder, filenamePP));
+    MLA_points(:,1) = [];
+    register = false;
+  else
+    register = true;
+  endif
+  
+  % load vertices and faces of triangular mesh from obj file
+  [v,f] = readObj(strcat(folder, filename));
+  % find bone and register points as appropriate
+  if (find_bone && !register)
+    bonesel = longbone_Registration(v, f);
+  elseif (find_bone && register)
+    [bonesel, MLA_points] = longbone_Registration(v, f);
+  elseif (!find_bone && register)
+    [nobone, MLA_points] = longbone_Registration(v, f);
+    bonesel = bone;
+  elseif (!find_bone && !register)
+    [nobone, MLA_points] = longbone_Registration(v, f);
+    bonesel = bone;
+  endif
+  % checking bone selection
+  if (nargin == 1)
+    bone = bonesel;
+  endif
+  if (strcmp(bone, "All"))
+    bone = bonesel;
+  endif
+  if (exist("bonesnum") == 1)
+    if (length(bonesnum) == 1 && !strcmp(bone, bonesel))
+      printf("Model %s is not a %s\n", filename, bone);
+      return;
+    endif
+    if (length(bonesnum) == 2 && !(strcmp(bones(1), bonesel) ...
+        || strcmp(bones(2), bonesel)))
+      printf("Model %s is neither a %s nor a %s\n", filename, bones{1}, bones{2});
+      return;
+    else
+      bone = bonesel;
+    endif
+  endif
+  % check if bone is properly determined
+  if !(strcmp(bone, "Humerus") || strcmp(bone, "Femur") || strcmp(bone, "Tibia"))
+    printf("Bone should be either humerus, femur or tibia\n");
     return;
   else
-    filename = varargin{1}(:)';
-    bone = varargin{2}(:)';
+    clear CS_Geometry SMoA polyline
   endif
-  % check second argument properly defines a bone
-  if !(strcmp(bone, "Humerus") || strcmp(bone, "Femur") || strcmp(bone, "Tibia"))
-    printf("bone should be defined either as humerus, femur or tibia\n");
-    return;
-  endif
-	
-  % load vertices and faces of triangular mesh from obj file
-  [v,f] = readObj(filename);
+  
   % find the maximum distance of the bone
   [maxDistance, maxd_V1, maxd_V2] = longbone_maxDistance(v);
   % calculate the normal vector and the 5 points in R3 that define the 5 slicing
@@ -146,20 +312,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   Centroid_3 = CS_Geometry(3).Centroid;
   Centroid_4 = CS_Geometry(4).Centroid;
   Centroid_5 = CS_Geometry(5).Centroid;
-
-  % check if orientation points are provided as a third input argument
-  % otherwise reuse the mesh filename by appending the required extension
-  % for Meshlab point files
-  if nargin != 3
-    filenamePP = filename([1:length(filename)-4]);
-    extension = ".pp";
-    filenamePP = strcat(filenamePP, extension);
-    % load Meshlab points for mediolateral axis from pp file
-    MLA_points = read_MeshlabPoints(filenamePP);
-    MLA_points(:,1) = [];
-  elseif nargin == 3
-    MLA_points = varargin{3};
-  endif
+  
   % calculate the proximal distal axis of the bone and use it together with
   % the mediolateral axis vector to define the coronal plane and calculate
   % its normal. Additionally, check if the centroids' locations progress from
@@ -191,8 +344,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   CorPlane_normal = cross(PDA_vector, MLA_vector);
   % normalize the normal vector of the coronal plane
   CorPlane_normal = CorPlane_normal ./ sqrt(sum(CorPlane_normal.^2));
-  
-  
+    
   % find if coronal plane normal points in the right direction (towards the
   % front) by checking the dot product of the normal with the vector between 
   % the first point of MLA vector and the nearest centroid. If not, reverse
@@ -381,10 +533,8 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   printf("Ax: %f Ay: %f Az: %f and Bx: %f By: %f Bz: %f\n", MLA_opt_point_A, MLA_opt_point_B);
   % if orientation points were retrieved from a Meshlab point file
   % save user defined and optimized MLA point back to the Meshlab Point file
-  if nargin != 3
-    MLP = [MLA_points([1:2],:); MLA_opt_point_A; MLA_opt_point_B];
-    write_MeshlabPoints(filenamePP, filename, MLP);
-  endif
+  MLP = [MLA_points([1:2],:); MLA_opt_point_A; MLA_opt_point_B];
+  write_MeshlabPoints(strcat(folder, filenamePP), filename, MLP);
 	
   % calculate new normals for each final cross section at 20, 35, 50, 65 and 80%
   % all normals should be pointing upwards, that is from distal towards proximal
