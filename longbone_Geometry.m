@@ -16,32 +16,37 @@
 %
 function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   % function [CS_Geometry, SMoA, polyline] = longbone_Geometry(folder, filename, bones)
+  % function [CS_Geometry, SMoA, polyline] = longbone_Geometry(folder, filename)
+  % function [CS_Geometry, SMoA, polyline] = longbone_Geometry(filename, bones)
+  % function [CS_Geometry, SMoA, polyline] = longbone_Geometry(filename)
   %
   % This function slices the provided mesh of a humerus, femur or tibia bone
   % at 20%, 35%, 50%, 65% and 80% along the bone's maximum length and returns
   % the geometric properties for each planar cross section.
   %
-  % This function loads a triangular mesh stored in Wavefront OBJ file along
-  % with the respective Meshlab Point file that contains the two points that
-  % define the mediolateral axis of the bone's anatomical orientation. Both
-  % files must be present in the same directory and share a common name.
-  % If no folder is parsed as input, then the working directory is assumed.
+  % This function loads a triangular mesh stored in Wavefront OBJ file and, if
+  % available, the respective Meshlab Point file that contains the two initial
+  % alignment points that define the mediolateral axis of the bone's anatomical
+  % orientation. Both files must be present in the same directory and share a
+  % common base name.
   % If the respective Meshlab Point file is missing, the 'longbone_Registration'
   % is utilized to automatically register the initial alignment points.
+  % If no folder path is parsed as input, then the working directory is assumed.
   %
-  % The function requires at least 1 input arguments, the first be the filename
-  % of the $$.obj including the file extension, i.e. 'ID_humerus.obj' and the
-  % bone will be identified automatically. When called with two input arguments
-  % there are two options:
-  % 1) the absolute path of the containing folder and the filename
-  % 2) the filename and the bone, which can be described either as a string or
-  %    a numerical vector as defined in 'longbone_Analysis' script.
+  % The function requires at least 1 input argument, in which case it should be
+  % a string with the filename of the bone's OBJ mesh file ("bone.obj"). When 
+  % called with two input arguments there are two options:
+  %  1) a string with the absolute path of the containing folder and another
+  %     string with the model's filename
+  %  2) a string with the model's filename and another bone selection variable,
+  %     which can also be a string or a numerical vector.
   %
-  % Additionally, the function can be called with 3 input arguments, path to
-  % folder, filename, and the bone variable as described above. When bone is
-  % parsed as a string, it can be either "Humerus", "Femur" or "Tibia"; for any
-  % other string value, the function will invoke 'longbone_Registration' for
-  % automatic bone detection.
+  % For bone selection with a string, "Humerus", "Femur" or "Tibia" can be used
+  % accordingly; for any other value, the bone will be automatically determined
+  % with the 'longbone_Registration' function. Additionally, the function can be
+  % called with 3 input arguments, absolute path to folder, filename, and the
+  % bone selection variable as described above. If folder is an empty string,
+  % the current working directory is assumed.
   %
   % The mediolateral axis alignment points for the humerus need to be positioned
   % anteriorly on the trochlea and capitulum at the distal end of the humerus.
@@ -103,7 +108,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   % The function requires the 'io', 'matgeom' & 'statistics' packages to be loaded.
   % It also relies on the functions 'longbone_maxDistance', 'simple_polygon3D', 
   % 'slice_Mesh_Plane', 'read_MeshlabPoints', 'write_MeshlabPoints', 'readObj',
-  % and 'longbone_Registration', which must be present in the working directory.
+  % and 'longbone_Registration'.
   
   % declare empty output variables so that returning does not produce error
   CS_Geometry = [];
@@ -127,12 +132,13 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   % only 2 args: filename and bone or folder and filename
   if (nargin == 2 && ischar(varargin{1}(:)') && ischar(varargin{2}(:)'))
     bone = varargin{2}(:)';
-    % filename + bone (string)
+    % filename and bone (string)
     if (strcmp(bone, "Humerus") || strcmp(bone, "Femur") || strcmp(bone, "Tibia"))
       folder = "";
       filename = varargin{1}(:)';
       find_bone = false;
-    else  % folder and filename
+    % folder and filename
+    else
       folder = varargin{1}(:)';
       filename = varargin{2}(:)';
       find_bone = true;
@@ -152,31 +158,30 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
     filename = varargin{2}(:)';
     bonesnum = varargin{3};
   endif
+  
+  % check filename has a valid .obj extension
+  if !(strcmpi(filename([end-3:end]), ".obj"))
+    printf("Model must be in OBJ file format\n");
+    return;
+  endif
+  % fix path by appending "/" to non empty paths
+  if !isempty(folder)
+    folder = strcat(folder, "/");
+  endif
+  
   % check numeric argument for bone selection
   if (exist("bonesnum") == 1)
+    find_bone = true;
     if (length(bonesnum) == 1)
       switch (bonesnum)
         case 1
           bone = "Humerus";
-          find_bone = false;
         case 2
           bone = "Femur";
-          find_bone = false;
         case 3
           bone = "Tibia";
-          find_bone = false;
         case 4
           bone = "All";
-          find_bone = true;
-        case 5
-          bone = "Humerus";
-          find_bone = true;
-        case 6
-          bone = "Femur";
-          find_bone = true;
-        case 7
-          bone = "Tibia";
-          find_bone = true;
         otherwise
           printf("Invalid numeric argument for bone selection\n");
           return;
@@ -187,47 +192,30 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
         printf("Invalid numeric argument for bone selection\n");
         return;
       endif
-      if (any(bonesnum==4))
-        bone = "All";
-        find_bone = true;
-      endif
       i = 0;
-      if (any(bonesnum==1) || any(bonesnum==5))
+      if (any(bonesnum==1))
         i++;
         bones(i) = {"Humerus"};
-        find_bone = true;
       endif
-      if (any(bonesnum==2) || any(bonesnum==6))
+      if (any(bonesnum==2))
         i++;
         bones(i) = {"Femur"};
-        find_bone = true;
       endif
-      if (any(bonesnum==3) || any(bonesnum==7))
+      if (any(bonesnum==3))
         i++;
         bones(i) = {"Tibia"};
-        find_bone = true;
       endif
-      if (i == 1)
-        bone = bones{i};
-        bonesnum = 0; % so that length equals 1
-        find_bone = true;
-      endif
-      if (i == 3)
+      if (i == 3 || any(bonesnum==4))
         bone = "All";
-        find_bone = true;
+        bonesnum = 0;     % so that length equals 1
       endif
     endif
   endif
-  
-  % fix path by appending "/" to non empty paths
-  if !isempty(folder)
-    folder = strcat(folder, "/");
-  endif
-  
+    
   % check if orientation points are available in corresponding pp file
   % otherwise automatically register new ones on the bone surface
   % for Meshlab point files
-  filenamePP = filename([1:length(filename)-4]);
+  filenamePP = filename([1:length(filename) - 4]);
   extension = ".pp";
   filenamePP = strcat(filenamePP, extension);
   if (exist(strcat(folder, filenamePP)) == 2)
@@ -253,6 +241,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
     [nobone, MLA_points] = longbone_Registration(v, f);
     bonesel = bone;
   endif
+  
   % checking bone selection
   if (nargin == 1)
     bone = bonesel;
@@ -273,9 +262,10 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
       bone = bonesel;
     endif
   endif
+  
   % check if bone is properly determined
   if !(strcmp(bone, "Humerus") || strcmp(bone, "Femur") || strcmp(bone, "Tibia"))
-    printf("Bone should be either humerus, femur or tibia\n");
+    printf("Bone should be either Humerus, Femur or Tibia\n");
     return;
   else
     clear CS_Geometry SMoA polyline

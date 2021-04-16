@@ -14,10 +14,14 @@
 % this program; if not, see <http://www.gnu.org/licenses/>.
 %
 
-% This script reads the available triangular meshes stored in .obj format that
-% are present in the working folder and utilizes the 'longbone_Geometry.m' function
-% to analyze their geometric properties, which are subsequently stored in .csv
-% files named following the name convention of their initial mesh filename.
+% This script reads the available bone models stored in OBJ file format that
+% are present in some folder and utilizes the 'longbone_Geometry' function to
+% analyze their geometric properties. The user is prompted to select which
+% long bone(s) should be analyzed and the folder which contains the said files.
+% All available OBJ files are evaluated but only the explicitly selected bones
+% are fully processed and their corresponding geometric properties stored in the
+% current working directory as .csv files named following the name convention
+% of their initial mesh filename.
 %
 % For example, for a triangular mesh named as 'ID_humerus.obj', the following
 % files are produced:
@@ -45,10 +49,13 @@
 %                               # ordered as (:,[1:3],[4:6],[7:9],[10:12],[13:15])
 %                               # from proximal to distal cross sections
 %
-% The script requires that 'statistcs', 'geometry' and 'io' packages are
-% installed and for each $$.obj file there is a corresponding $$.pp Meshlab Point
-% file, which contains two points that provide guidance for the anatomical
-% orientation of the bone represented in the triangular mesh.
+% The script requires that 'statistics', 'geometry' and 'io' packages are
+% installed. For each selected OBJ file, the initial alignment points are either
+% read from the corresponding Meshlab Point file (e.g. 'ID_humerus.pp'), if
+% present in the same folder with the OBJ, or they are automatically registered
+% with the 'longbone_Registration' function.
+% All bone models stored as OBJ files must be strictly triangular meshes and
+% their coordinate umits are considered to be in mm.
 %
 % The user is prompted with the list of longbones and must choose the appropriate
 % bone(s), that is 'Humerus', 'Femur' or 'Tibia', contained in the obj files so
@@ -65,21 +72,20 @@
 % This script requires the 'io', 'matgeom' & 'statistics' packages to be loaded.
 % It also relies on the functions 'longbone_Geometry', 'longbone_maxDistance',
 % 'slice_Mesh_Plane', 'simple_polygon3D', 'read_MeshlabPoints', 'write_MeshlabPoints',
-% 'readObj', 'longbone_Registration', which must be present in the working directory.
+% 'readObj', and 'longbone_Registration'.
 
 % load required packages
 pkg load statistics
 pkg load matgeom
 pkg load io;
 % define the bone(s) to be analyzed from the available 3D model files
-options = {"Humerus", "Femur", "Tibia", "All", "check Humerus", ...
-           "check Femur", "check Tibia"};
+options = {"Humerus", "Femur", "Tibia", "All"};
 pstring = "Select desired bones for analysis";
 [bones, OK] = listdlg ("ListString", options, "SelectionMode", "multiple", ...
                       "ListSize", [222, 150], "InitialValue", 4, "Name", ...
                       "longbone_Analysis", "PromptString", pstring);
 % define folder containing the available .obj files
-dialog = "Select folder containing 3D models for longbone analysis";
+dialog = "Select folder containing 3D models for analysis";
 folder = uigetdir (dialog);
 
 % list the filenames with .obj extension in the working folder
