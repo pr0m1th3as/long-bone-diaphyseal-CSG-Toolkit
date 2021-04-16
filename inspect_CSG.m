@@ -38,7 +38,9 @@ pkg load statistics;
 
 % list the filenames with geometry-*.csv pattern in the working folder
 filenames = dir("geometry-*.csv");
-id = 0;
+% define folder containing the available .obj files
+dialog = "Select folder containing 3D models for longbone analysis";
+folder = uigetdir (dialog);
 
 % create the header of the final csv file in a cell array
 complete(1,1) = {"sample"}; complete(1,2) = {"Max Distance"}; complete(1,3) = {"angle-20_35"};
@@ -60,6 +62,7 @@ complete(1,40) = {"Area 80%"}; complete(1,41) = {"Perimeter 80%"}; complete(1,42
 complete(1,43) = {"Iy 80%"}; complete(1,44) = {"Ixy 80%"}; complete(1,45) = {"Imin 80%"};
 complete(1,46) = {"Imax 80%"}; complete(1,47) = {"Theta 80%"};
 
+id = 0;
 % for each available model, extract the model name and call the visualization function
 for i = 1:length(filenames)
   bone_id = strcat(filenames(i).name(10:end-4));
@@ -75,9 +78,9 @@ for i = 1:length(filenames)
     complete(i+1,1) = {bone_id};
     % check if 3D model's OBJ file is present in the working directory and in such case
     % calculate its max distance and append it in the cell array, otherwise append a NaN value
-    obj_filename = strcat(bone_id, ".obj");
-    if exist(obj_filename)==2
-      [v,f] = readObj(obj_filename);
+    obj_path_filename = strcat(folder, "/", bone_id, ".obj");
+    if exist(obj_path_filename)==2
+      [v,f] = readObj(obj_path_filename);
       maxD = longbone_maxDistance(v);
       complete(i+1,2) = {maxD};
     else
