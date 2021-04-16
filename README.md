@@ -16,9 +16,15 @@ These can be compiled from within GNU Octave environment by issuing the followin
 	mkoctfile slice_Mesh_Plane.cc
 	mkoctfile longbone_Registration.cc
 
-The CSG Toolkit can be called in batch processing mode using the 'longbone_Analysis.m'
+The CSG Toolkit can be called in batch processing mode using the 'longbone_Analysis'
 script which can handle all available 3D models found in OBJ format in the working
-directory as long as a specific bone, i.e. humerus, femur or tibia, is selected. Type
+directory or any other folder path. Although this functionality is still available,
+there is no longer need to work with a specific bone being present in a folder for batch
+proccessing. The user may select a specific bone, i.e. Humerus, or may choose to process
+different bones in a single batch process. Not selected bones are not processed.
+The need for MeshLab .pp side car files has been also relaxed. If they are present along
+with their OBJ counterparts, they are utilized, if not, the initial alignment points are
+automatically registered with the 'longbone_Registration' function. Type
 
 	help longbone_Analysis
 
