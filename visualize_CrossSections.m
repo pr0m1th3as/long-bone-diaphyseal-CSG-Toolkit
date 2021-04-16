@@ -113,7 +113,7 @@ function [varargout] = visualize_CrossSections(varargin)
   endif
   a = {" 20%", " 35%", " 50%", " 65%", " 80%"};
   for i=1:5
-    figure(i);
+    figure(i, "name", bone_id, "numbertitle", "off");
     drawPolygon(polyline(i).poly2D(:,1),polyline(i).poly2D(:,2));
     axis("image");
     title(strcat("Cross section at ",a(i)), 'FontSize', 16);
