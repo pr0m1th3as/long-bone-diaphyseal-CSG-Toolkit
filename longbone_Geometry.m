@@ -103,7 +103,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   % The function requires the 'io', 'matgeom' & 'statistics' packages to be loaded.
   % It also relies on the functions 'longbone_maxDistance', 'simple_polygon3D', 
   % 'slice_Mesh_Plane', 'read_MeshlabPoints', 'write_MeshlabPoints', 'readObj',
-  % and 'longbone_Registration' which must be present in the working directory.
+  % and 'longbone_Registration', which must be present in the working directory.
   
   % declare empty output variables so that returning does not produce error
   CS_Geometry = [];
