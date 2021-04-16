@@ -25,7 +25,8 @@
 %
 % For every sample the script checks for the presence of the associated 3D model as an OBJ file
 % and if it is available it utilizes the 'readObj' and 'longbone_maxDistance' functions to measure
-% the bone's maximum length and include it in the data, otherwisea a "NaN" value is appended.
+% the bone's maximum length and include it in the data, otherwise a "NaN" value is appended.
+% The OBJ files may be in a different folder/path than the current working directory.
 %
 % Note that the script relies on the 'io' >= 2.4.12, 'matgeom' >= 1.2.2 and 'statistics' >= 1.4.1
 % packages. If not available, you can install their latest version by invoking
