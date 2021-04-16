@@ -101,10 +101,11 @@ function [varargout] = visualize_CrossSections(varargin)
     endif
   % alternatively, check if three input arguments are parsed into the function
   % and check that they are structures
-  elseif (nargin == 3)
-  CS_Geometry = varargin{1};
-  SMoA = varargin{2};
-  polyline = varargin{3};
+  elseif (nargin == 4)
+    bone_id = varargin{1};
+    CS_Geometry = varargin{2};
+    SMoA = varargin{3};
+    polyline = varargin{4};
     if !(isstruct(CS_Geometry) &&  isstruct(SMoA) && isstruct(polyline))
       error 'all three input arguments need to be structures';
     endif
