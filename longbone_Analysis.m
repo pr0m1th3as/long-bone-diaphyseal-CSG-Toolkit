@@ -50,19 +50,22 @@
 % file, which contains two points that provide guidance for the anatomical
 % orientation of the bone represented in the triangular mesh.
 %
-% The user is promted with the list of longbones and must choose the appropriate
-% bone, that is 'Humerus', 'Femur' or 'Tibia', contained in the obj files so
-% that the underlying functions can properly calculate its orientation. Only one
-% type of bone can be analyzed each time, so the user must ensure that only
-% meshes of a particular bone are present in the working folder during an analysis.
-% Of course, both sides of the same bone can be analyzed together, but each
-% .obj file must explicitly contain a single bone. Coordinates of the triangular
-% meshes are considered to be in mm.
+% The user is prompted with the list of longbones and must choose the appropriate
+% bone(s), that is 'Humerus', 'Femur' or 'Tibia', contained in the obj files so
+% that the underlying functions can properly calculate its orientation. The user
+% may select a specific bone, i.e. Humerus, (if explicitly present in the given
+% directory) or may choose to process different bones in a single batch process.
+% Not selected bones are not processed. The need for MeshLab .pp side car files
+% has been also relaxed. If they are present along with their OBJ counterparts,
+% they are utilized, if not, the initial alignment points are automatically
+% registered with the 'longbone_Registration' function. Both sides of the each
+% bone can be analyzed together, but each OBJ file must explicitly contain a 
+% single bone. Coordinates of the triangular meshes are considered to be in mm.
 %
 % This script requires the 'io', 'matgeom' & 'statistics' packages to be loaded.
 % It also relies on the functions 'longbone_Geometry', 'longbone_maxDistance',
 % 'slice_Mesh_Plane', 'simple_polygon3D', 'read_MeshlabPoints', 'write_MeshlabPoints',
-% and 'readObj', which must be present in the working directory.
+% 'readObj', 'longbone_Registration', which must be present in the working directory.
 
 % load required packages
 pkg load statistics
