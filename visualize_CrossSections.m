@@ -1,4 +1,4 @@
-% Copyright (C) 2018-2020 Andreas Bertsatos <abertsatos@biol.uoa.gr>
+% Copyright (C) 2018-2021 Andreas Bertsatos <abertsatos@biol.uoa.gr>
 %
 % This program is free software; you can redistribute it and/or modify it under
 % the terms of the GNU General Public License as published by the Free Software
@@ -57,24 +57,24 @@ function [varargout] = visualize_CrossSections(varargin)
   % check if all three .csv files are present.
   if (nargin == 1)
     bone_id = varargin{1};
-    filenames = ls;
+    filenames = readdir(pwd);
+    % merge filenames
     g_filename = strcat("geometry-", bone_id, ".csv");
     i_filename = strcat("inertia-", bone_id, ".csv");
     p_filename = strcat("polyline2D-", bone_id, ".csv");
-    for i = length(filenames(:,1)):-1:1
-      if !(isempty(strfind(filenames(i,:), g_filename)))
-        geometry = csvread(g_filename);
-        g_exists = 1;
-      elseif !(isempty(strfind(filenames(i,:), i_filename)))
-        inertia = csvread(i_filename);
-        i_exists = 1;
-      elseif !(isempty(strfind(filenames(i,:), p_filename)))
-        poly = csvread(p_filename);
-        p_exists = 1;
-      endif
-    endfor
-    if !(g_exists == 1 && i_exists == 1 && p_exists == 1)
-      error 'not all .csv files are present';
+    % read files if available
+    if (sum(strcmp(filenames, g_filename)) == 1)
+      geometry = csvread(filenames(strcmp(filenames, g_filename)){:});
+    endif
+    if (sum(strcmp(filenames, i_filename)) == 1)
+      inertia = csvread(filenames(strcmp(filenames, i_filename)){:});
+    endif
+    if (sum(strcmp(filenames, p_filename)) == 1)
+      poly = csvread(filenames(strcmp(filenames, p_filename)){:});
+    endif
+    % check if all files present
+    if !(exist("geometry") == 1 && exist("geometry") == 1 && exist("poly") == 1)
+        error 'not all .csv files are present';
     else
       % store the matrices from the .csv files to the corresponding
       % structures in the same format as returned from 'longbone_Geometry.m'
