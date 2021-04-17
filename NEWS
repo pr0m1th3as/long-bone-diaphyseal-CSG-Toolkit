@@ -32,6 +32,6 @@ CSG-Toolkit-1.1.0  Release Date: 2021-17-04  Release Manager: Andreas Bertsatos
 determine bone and register the required initial alignment points.
 * Updated functionality in longbone_Analysis and longbone_Geometry to include
 the new capabilities of 'longbone_Registration' in batch processing.
-% Updated help files and various bug fixes.
+* Removed precompiled binaries.
 
 ===============================================================================
