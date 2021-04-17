@@ -25,7 +25,7 @@ variables from batch-produced csv files by 'longbone_Analysis' into a single
 CSV file. Type 'help inspect_CSG' for more info.
 
 ===============================================================================
-CSG-Toolkit-1.1.0  Release Date: 2021-17-04  Release Manager: Andreas Bertsatos
+CSG-Toolkit-1.2.0  Release Date: 2021-17-04  Release Manager: Andreas Bertsatos
 ===============================================================================
 
 * An additional function 'longbone_Registration' has been added to automatically
