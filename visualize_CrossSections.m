@@ -74,7 +74,7 @@ function [varargout] = visualize_CrossSections(varargin)
     endif
     % check if all files present
     if !(exist("geometry") == 1 && exist("geometry") == 1 && exist("poly") == 1)
-        error 'not all .csv files are present';
+      error 'not all .csv files are present';
     else
       % store the matrices from the .csv files to the corresponding
       % structures in the same format as returned from 'longbone_Geometry.m'

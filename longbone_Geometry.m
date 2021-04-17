@@ -164,10 +164,6 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
     printf("Model must be in OBJ file format\n");
     return;
   endif
-  % fix path by appending "/" to non empty paths
-  if !isempty(folder)
-    folder = strcat(folder, "/");
-  endif
   
   % check numeric argument for bone selection
   if (exist("bonesnum") == 1)
@@ -218,9 +214,9 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   filenamePP = filename([1:length(filename) - 4]);
   extension = ".pp";
   filenamePP = strcat(filenamePP, extension);
-  if (exist(strcat(folder, filenamePP)) == 2)
+  if (exist(fullfile(folder, filenamePP)) == 2)
     % load Meshlab points for mediolateral axis from pp file
-    MLA_points = read_MeshlabPoints(strcat(folder, filenamePP));
+    MLA_points = read_MeshlabPoints(fullfile(folder, filenamePP));
     MLA_points(:,1) = [];
     register = false;
   else
@@ -228,7 +224,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   endif
   
   % load vertices and faces of triangular mesh from obj file
-  [v,f] = readObj(strcat(folder, filename));
+  [v,f] = readObj(fullfile(folder, filename));
   % find bone and register points as appropriate
   if (find_bone && !register)
     bonesel = longbone_Registration(v, f);
@@ -262,7 +258,6 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
       bone = bonesel;
     endif
   endif
-  
   % check if bone is properly determined
   if !(strcmp(bone, "Humerus") || strcmp(bone, "Femur") || strcmp(bone, "Tibia"))
     printf("Bone should be either Humerus, Femur or Tibia\n");
@@ -524,7 +519,7 @@ function [CS_Geometry, SMoA, polyline] = longbone_Geometry(varargin)
   % if orientation points were retrieved from a Meshlab point file
   % save user defined and optimized MLA point back to the Meshlab Point file
   MLP = [MLA_points([1:2],:); MLA_opt_point_A; MLA_opt_point_B];
-  write_MeshlabPoints(strcat(folder, filenamePP), filename, MLP);
+  write_MeshlabPoints(fullfile(folder, filenamePP), filename, MLP);
 	
   % calculate new normals for each final cross section at 20, 35, 50, 65 and 80%
   % all normals should be pointing upwards, that is from distal towards proximal
