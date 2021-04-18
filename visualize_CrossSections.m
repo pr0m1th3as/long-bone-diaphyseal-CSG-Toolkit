@@ -73,7 +73,7 @@ function [varargout] = visualize_CrossSections(varargin)
       poly = csvread(filenames(strcmp(filenames, p_filename)){:});
     endif
     % check if all files present
-    if !(exist("geometry") == 1 && exist("geometry") == 1 && exist("poly") == 1)
+    if !(exist("geometry") == 1 && exist("inertia") == 1 && exist("poly") == 1)
       error 'not all .csv files are present';
     else
       % store the matrices from the .csv files to the corresponding
