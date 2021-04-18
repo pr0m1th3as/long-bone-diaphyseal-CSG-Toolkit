@@ -16,6 +16,24 @@ These can be compiled from within GNU Octave environment by issuing the followin
 	mkoctfile slice_Mesh_Plane.cc
 	mkoctfile longbone_Registration.cc
 
+Alternatively, you may download and install the CSG Toolkit as a GNU Octave package from
+the archive 'csg-toolkit-1.2.1.tar.gz' which corresponds to the latest version. When installing
+the packaged format, compiling and loaded paths are handled automatically. Download and run
+
+	pkg install csg-toolkit-1.2.1.tar.gz
+
+to install from a locally downloaded archive, or issue the following command
+
+	pkg install "https://raw.githubusercontent.com/pr0m1th3as/long-bone-diaphyseal-CSG-Toolkit/master/csg-toolkit-1.2.1.tar.gz"
+
+to automatically download and install it from online repository. Prior to using the CSG Toolkit,
+remember to run
+
+	pkg load csg-toolkit
+
+Dependencies on aforementioned packages are still valid prior to installation , but they are
+automatically loaded along with the csg-toolkit. Happy long bone analysis!
+
 The CSG Toolkit can be called in batch processing mode using the 'longbone_Analysis'
 script which can handle all available 3D models found in OBJ format in the working
 directory or any other folder path. Although this functionality is still available,
