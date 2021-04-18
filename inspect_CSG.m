@@ -80,7 +80,7 @@ for i = 1:length(filenames)
     % check if 3D model's OBJ file is present in the working directory and in such case
     % calculate its max distance and append it in the cell array, otherwise append a NaN value
     obj_filename = strcat(bone_id, ".obj");
-    if (exist(fullfile(folder, obj_filename)==2))
+    if (exist(fullfile(folder, obj_filename))==2)
       [v,f] = readObj(fullfile(folder, obj_filename));
       maxD = longbone_maxDistance(v);
       complete(i+1,2) = {maxD};
