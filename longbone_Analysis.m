@@ -35,7 +35,7 @@
 ## cross sections ([1:5],:).
 ##
 ## @item inertia-bone_ID.csv @tab containing the properties of Ix, Iy, Ixy,
-## Imin,Imax and theta angle for each cross section as a row vector (:,[1:6])
+## Imin, Imax and theta angle for each cross section as a row vector (:,[1:6])
 ## from proximal to distal cross sections ([1:5],:).
 ##
 ## @item polyline2D-bone_ID.csv @tab containing the 2D coordinates for each
