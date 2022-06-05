@@ -6,33 +6,27 @@ analyzing the diaphyseal cross-sectional geometric properties of long bones, whi
 can be applied to any 3D digital model of a humerus, femur or tibia bone represented
 as a triangular mesh in a Wavefront OBJ file format.
 
-The CSG Toolkit requires the 'io >= 2.4.12', 'statistical >= 1.4.1' and 'matgeom >= 1.2.1'
-packages to be installed. Reading the .obj mesh files and calculating the cross sections
-relies on the 'readObj', 'slice_Mesh_Plane', and 'longbone_Registration' functions,
-which should be compiled before their initial use.
-These can be compiled from within GNU Octave environment by issuing the following commands
+The CSG Toolkit is compatible with versions of Octave >= v5.2.0 and depends on
+the 'io >= 2.4.12' package. Before use, the source files for oct functions must
+be compiled. Run the `compile` script to compile them. This is only required once.
+Alternatively, you may download and install the CSG Toolkit as a package using
+the archive 'csg-toolkit-1.2.2.tar.gz', which corresponds to the latest version.
+When installing the packaged version, compiling, dependencies and loaded paths
+are handled automatically.
+Download and run
 
-	mkoctfile readObj.cc
-	mkoctfile slice_Mesh_Plane.cc
-	mkoctfile longbone_Registration.cc
+ `pkg install csg-toolkit-1.2.2.tar.gz`
 
-Alternatively, you may download and install the CSG Toolkit as a GNU Octave package from
-the archive 'csg-toolkit-1.2.1.tar.gz' which corresponds to the latest version. When installing
-the packaged format, compiling and loaded paths are handled automatically. Download and run
+to install from a locally downloaded archive, or issue the following command to
+install the 'csg-toolkit' package automatically from this repository
 
-	pkg install csg-toolkit-1.2.1.tar.gz
+ `pkg install "https://raw.githubusercontent.com/pr0m1th3as/long-bone-diaphyseal-CSG-Toolkit/master/csg-toolkit-1.2.2.tar.gz"`
 
-to install from a locally downloaded archive, or issue the following command
+The package can be loaded on demand in Octave with the following commmand:
 
-	pkg install "https://raw.githubusercontent.com/pr0m1th3as/long-bone-diaphyseal-CSG-Toolkit/master/csg-toolkit-1.2.1.tar.gz"
+ `pkg load csg-toolkit`
 
-to automatically download and install it from online repository. Prior to using the CSG Toolkit,
-remember to run
-
-	pkg load csg-toolkit
-
-Dependencies on aforementioned packages are still valid prior to installation , but they are
-automatically loaded along with the csg-toolkit. Happy long bone analysis!
+Happy long bone analysis!
 
 The CSG Toolkit can be called in batch processing mode using the 'longbone_Analysis'
 script which can handle all available 3D models found in OBJ format in the working
