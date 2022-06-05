@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021 Andreas Bertsatos <abertsatos@biol.uoa.gr>
+Copyright (C) 2021-2022 Andreas Bertsatos <abertsatos@biol.uoa.gr>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -39,13 +39,13 @@ struct Vector3           //for 3D points
 };
 struct Mesh             //for triangular mesh object data
 {
-	double V1x, V1y, V1z;
-	double V2x, V2y, V2z;
-	double V3x, V3y, V3z;
+  double V1x, V1y, V1z;
+  double V2x, V2y, V2z;
+  double V3x, V3y, V3z;
 };
 struct maxDpoints       //for max distance 3D points
 {
-	Vector3 V1, V2;
+  Vector3 V1, V2;
 };
 struct Raster
 {
@@ -89,20 +89,20 @@ namespace global
 }
 namespace PCA
 {
-  vector<double> PC1{0.944469915875648,-0.00551212677686576,-0.0329186462969172,
-                    0.00155844534230915,-0.00571344361206586,-0.182659138702949,
-                    -0.00025603525584915,0.00593556392058324,-0.267396030416267,
-                   0.00340578742997407,-0.0296235455361666,-0.00430703400652527,
-                  -0.00297683647259807,0.00574271851749398,-0.00129020522441161,
-                    -0.00197283981591337,0.0285936148997753,0.00143066026200712,
-                  -0.00560911375828087,0.00836070619091399,0.00714729657647894};
-  vector<double> PC2{0.0136677871678408,0.00354096758126963,0.331989240323694,
-                   -0.903457857718453,0.000944020362069964,-0.00176701719680674,
-                     0.00845761007815908,-0.0328715560597458,0.0099698942450892,
-                       0.00103036761616232,-0.102290901198038,0.241421394148406,
-                  -0.00103208874726854,0.000110945249030116,0.00758253795681629,
-                   0.0178882263925236,-0.00252020761404978,0.000401789575848156,
-                  -0.0501544630786005,-0.0210250327118457,0.000915603258478932};
+  vector<double> PC1{0.93531843007037,0.0183028981666609,0.0369610202429386,
+                    -0.0883738237697742,-0.0110708382797718,-0.183380947194812,
+                  -0.00141348637990715,-0.00399920897049199,-0.280406254855754,
+                   0.00595952325266791,-0.0433463182607595,0.00165435555137897,
+                   0.00378463038272828,0.0116475692638028,0.000788228919600664,
+                  -0.00043713590973217,0.02924125415881,0.000167059799094242,
+                  -0.0149938678383692,0.010248599241707,0.00432520436018409};
+  vector<double> PC2{0.177588773121458,-0.00121990747029798,-0.287792734466079,
+                  0.867960847284974,-0.000700784087249675,-0.00139263620355797,
+                    0.00937293078282894,-0.00749106016039342,0.245542759691789,
+                    0.00185153345672356,0.135692334950271,-0.199828570784526,
+                  -0.0102100454746126,-0.0246754340040846,0.000547128908593401,
+                    0.00625205301220659,-0.086159585310214,0.00462930025019041,
+                   0.0723734381719101,-0.00545801757731642,0.00547627334741027};
 }
 // function for adding two 3D vectors
 Vector3 addVectors3D(Vector3 A, Vector3 B)
@@ -496,7 +496,8 @@ vector<Vector3> sliceMesh(vector<Mesh> Mesh3D, Vector3 point, Vector3 normal)
 		dotV2 = dotProduct3D(V2, normal);
 		dotV3 = dotProduct3D(V3, normal);
     // true if intersecting
-		if(!((dotV1 < 0 && dotV2 < 0 && dotV3 < 0) || (dotV1 > 0 && dotV2 > 0 && dotV3 > 0)))
+		if(! ((dotV1 < 0 && dotV2 < 0 && dotV3 < 0) || 
+          (dotV1 > 0 && dotV2 > 0 && dotV3 > 0)))
 		{
 			if(dotV1 * dotV2 < 0)       // vertices 1 and 2 lie on opposite sides
 			{
@@ -746,7 +747,8 @@ vector<Contour> calculateMooreNeighbor(vector<vector<Raster>> rasterMatrix)
       // the contour is closed if current pixel (last found) matches the second
       // pixel in the vector (position and direction) and the previously found
       // pixel's position matches that of the initial pixel
-      if(row_0 == row_bl && col_0 == col_bl && row_1 == row_l && col_1 == col_l && dir_1 == dir_l)
+      if(row_0 == row_bl && col_0 == col_bl && row_1 == row_l && 
+                            col_1 == col_l && dir_1 == dir_l)
       {
         // in such case copy the direction of the previously found pixel
         // to its instance at the beginning of the vector (initial pixel)
@@ -982,17 +984,35 @@ vector<double> arrangeEFD(vector<EFDcoef> EFDs)
 // function for classifying bone and proximal distal epiphysis
 void classifyBone(vector<EFDcoef> EFD_1, vector<EFDcoef> EFD_2, Polygon GEOM_1, Polygon GEOM_2)
 {
+  // check for Ulna by comparing the Area of the distal epiphysis
+  double Area1 = GEOM_1.Area;
+  double Area2 = GEOM_2.Area;
+  if(Area1 < 500 || Area2 < 500)
+  {
+    global::bone = "Ulna";
+    // proximal epiphysis is the larger one
+    if(Area1 > Area2)
+    {
+      global::epiphysis = 1;
+    }
+    else
+    {
+      global::epiphysis = 2;
+    }
+    return;
+  }
+  // check for Femur, Tibia, and Humerus
   // declare values for group centroids of PC scores {Vector2(PC1, PC2)}
   // [0]: F_distal_1, [1]: F_distal_2, [2]: F_proximal
   // [3]: T_proximal, [4]: T_distal, [5]: H_distal, [6]: H_proximal
-  vector<Vector2> BoneGroup; vector<double> avDist;
-  BoneGroup.push_back({0.670, 0.266});
-  BoneGroup.push_back({0.673,-0.239});
-  BoneGroup.push_back({0.499, 0.007});
-  BoneGroup.push_back({0.726, 0.016});
-  BoneGroup.push_back({0.781, 0.016});
-  BoneGroup.push_back({0.562, 0.014});
-  BoneGroup.push_back({0.874, 0.009});
+  vector<Vector2> BoneGroup;
+  BoneGroup.push_back({0.621, 0.389});
+  BoneGroup.push_back({0.664,-0.034});
+  BoneGroup.push_back({0.524, 0.151});
+  BoneGroup.push_back({0.711, 0.184});
+  BoneGroup.push_back({0.779, 0.147});
+  BoneGroup.push_back({0.509, 0.123});
+  BoneGroup.push_back({0.865, 0.169});
   // arrange EFDs to vectors
   vector<double> EFDvec1 = arrangeEFD(EFD_1);
   vector<double> EFDvec2 = arrangeEFD(EFD_2);
@@ -1028,12 +1048,12 @@ void classifyBone(vector<EFDcoef> EFD_1, vector<EFDcoef> EFD_2, Polygon GEOM_1, 
   // Imax/Imin ratios to verify epiphysis and Areas to select epiphysis
   // for tibia
   // searching for distal femur
-  if((bg1 == 0 || bg1 == 1) && (bg2 == 2 || bg2 == 5) && Ratio2 > Ratio1)
+  if((bg1 == 0 || bg1 == 1) && Ratio2 > Ratio1)
   {
     global::bone = "Femur";
     global::epiphysis = 1;
   }
-  else if((bg2 == 0 || bg2 == 1) && (bg1 == 2 || bg1 == 5) && Ratio1 > Ratio2)
+  else if((bg2 == 0 || bg2 == 1) && Ratio1 > Ratio2)
   {
     global::bone = "Femur";
     global::epiphysis = 2;
@@ -1050,13 +1070,13 @@ void classifyBone(vector<EFDcoef> EFD_1, vector<EFDcoef> EFD_2, Polygon GEOM_1, 
     global::epiphysis = 2;
   }
   // searching for distal humerus extreme cases (distinct from tibia)
-  else if(bg1 == 3 && E1.x < 0.68 && (bg2 == 4 || bg2 == 6) && E2.x > 0.78 && 
+  else if(bg1 == 3 && E1.x < 0.63 && (bg2 == 3 || bg2 == 4 || bg2 == 6) &&
           Ratio1 > Ratio2 && (GEOM_1.Area / GEOM_2.Area) < 1.6)
   {
     global::bone = "Humerus";
     global::epiphysis = 1;
   }
-  else if(bg2 == 3 && E2.x < 0.68 && (bg1 == 4 || bg1 == 6) && E1.x > 0.78 && 
+  else if(bg2 == 3 && E2.x < 0.63 && (bg1 == 3 || bg1 == 4 || bg1 == 6) &&
           Ratio2 > Ratio1 && (GEOM_2.Area / GEOM_1.Area) < 1.6)
   {
     global::bone = "Humerus";
@@ -1088,7 +1108,9 @@ vector<Vector2> register2Dpolyline(vector<Vector2> polyline2D, Polygon GEOM)
   // declare variables
   vector<Vector2> t_Poly2D;
   Vector2 centroid;
-  // align Imax to x axis
+  // align Imax to x axis. For Femur, Tibia, and Humerus, Imax approximates
+  // the sagittal axis (anteroposterior). For Ulna, Imax approximates the
+  // coronal axis (mediolateral)
   t_Poly2D = translatePoints2D(polyline2D, GEOM.Centroid);
   t_Poly2D = rotatePoints2D(t_Poly2D, -GEOM.theta);
   centroid = {- GEOM.Centroid.x, -GEOM.Centroid.y};
@@ -1124,37 +1146,75 @@ vector<Vector2> register2Dpolyline(vector<Vector2> polyline2D, Polygon GEOM)
   // search for the registration points
   Vector2 point_A = {0, 0};
   Vector2 point_B = {0, 0};
-  if(max_x > - min_x)   // on the positive x-axis
+  // for Femur, Tibia, and Humerus find two distinct registration points
+  // one above and one below the horizontal line set by mid_y
+  if(global::bone == "Femur" || global::bone == "Tibia" ||
+     global::bone == "Humerus")
   {
-    for(int i = 0; i < t_Poly2D.size(); ++i)
+    if(max_x > - min_x)   // on the positive x-axis
     {
-      // check for upper side [+y]
-      if(t_Poly2D[i].x > point_A.x && t_Poly2D[i].y > mid_y)
+      for(int i = 0; i < t_Poly2D.size(); ++i)
       {
-        point_A = t_Poly2D[i];
+        // check for upper side [+y]
+        if(t_Poly2D[i].x > point_A.x && t_Poly2D[i].y > mid_y)
+        {
+          point_A = t_Poly2D[i];
+        }
+        // check for lower side [-y]
+        if(t_Poly2D[i].x > point_B.x && t_Poly2D[i].y < mid_y)
+        {
+          point_B = t_Poly2D[i];
+        }
       }
-      // check for lower side [-y]
-      if(t_Poly2D[i].x > point_B.x && t_Poly2D[i].y < mid_y)
+    }
+    else    // on the negative x-axis
+    {
+      for(int i = 0; i < t_Poly2D.size(); ++i)
       {
-        point_B = t_Poly2D[i];
+        // check for upper side [+y]
+        if(t_Poly2D[i].x < point_A.x && t_Poly2D[i].y > mid_y)
+        {
+          point_A = t_Poly2D[i];
+        }
+        // check for lower side [-y]
+        if(t_Poly2D[i].x < point_B.x && t_Poly2D[i].y < mid_y)
+        {
+          point_B = t_Poly2D[i];
+        }
       }
     }
   }
-  else    // on the negative x-axis
+  // for Ulna find a single registration point as the most distant point from
+  // origin on the y axis and nearest to Imin (min|x|)
+  else if(global::bone == "Ulna")
   {
-    for(int i = 0; i < t_Poly2D.size(); ++i)
+    if(max_y > - min_y)   // on the positive y-axis
     {
-      // check for upper side [+y]
-      if(t_Poly2D[i].x < point_A.x && t_Poly2D[i].y > mid_y)
+      for(int i = 0; i < t_Poly2D.size(); ++i)
       {
-        point_A = t_Poly2D[i];
-      }
-      // check for lower side [-y]
-      if(t_Poly2D[i].x < point_B.x && t_Poly2D[i].y < mid_y)
-      {
-        point_B = t_Poly2D[i];
+        // check for closest to Imin
+        double x_diff = abs(t_Poly2D[i].x);
+        if(t_Poly2D[i].y > 0 && t_Poly2D[i].x < x_diff)
+        {
+          x_diff = abs(t_Poly2D[i].x);
+          point_A = t_Poly2D[i];
+        }
       }
     }
+    else    // on the negative y-axis
+    {
+      for(int i = 0; i < t_Poly2D.size(); ++i)
+      {
+        // check for closest to Imin
+        double x_diff = abs(t_Poly2D[i].x);
+        if(t_Poly2D[i].y < 0 && t_Poly2D[i].x < x_diff)
+        {
+          x_diff = abs(t_Poly2D[i].x);
+          point_A = t_Poly2D[i];
+        }
+      }
+    }
+    point_B = point_A;
   }
   // reverse rotation to align registration points on the original coordinates
   // of the polyline
@@ -1201,27 +1261,26 @@ vector<Vector3> register3DepCloud(vector<Vector3> epCloud, vector<Vector2> regPo
 
 DEFUN_DLD (longbone_Registration, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn{function} [@var{bone}, @var{Points}] = longbone_Registration (@var{v},@var{f})\n\
+@deftypefn{Function} [@var{bone}, @var{Points}] = longbone_Registration (@var{v},@var{f})\n\
 \n\
 \n\
-This function finds the long bone (i.e. Femur, Tibia, or Humerus) represented \
-in the input mesh defined by its vertices @var{v} and faces @var{f} and it also \
-registers the two points on the bone's surface required by the CSG-Toolkit for \
-anatomical alignment of the bone. The function returns the long bone's name in \
-@var{bone} and if a second argument is present it returms the 3D coordinates of \
-the registered points.\n\
-\n\
+This function finds the long bone (i.e. Femur, Ulna, Tibia, or Humerus)\
+represented in the input mesh defined by its vertices @var{v} and faces @var{f}\
+and it also registers the two points on the bone's surface required by the\
+CSG-Toolkit for anatomical alignment of the bone. The function returns the long\
+bone's name in @var{bone} and if a second argument is present it returms the\
+3D coordinates of the registered points.\n\
 @end deftypefn")
 {
   // check number of input and output arguments
   if(args.length() != 2)
   {
-    std::cout << "Invalid number of input arguments.\n";
+    cout << "Invalid number of input arguments.\n";
     return octave_value_list();
   }
   if(nargout < 1 && nargout > 2)
   {
-    std::cout << "Invalid number of output arguments.\n";
+    cout << "Invalid number of output arguments.\n";
     return octave_value_list();
   }
   // store vertices and faces in Mesh data structure
@@ -1236,14 +1295,15 @@ the registered points.\n\
 	double tmpV2x, tmpV2y, tmpV2z;
 	double tmpV3x, tmpV3y, tmpV3z;
 	for(octave_idx_type i = 0; i < F_rows; i++)
-	{
-		tmpV1x = V(F(i,0) - 1, 0); tmpV1y = V(F(i,0) - 1, 1); tmpV1z = V(F(i,0) - 1, 2);
-		tmpV2x = V(F(i,1) - 1, 0); tmpV2y = V(F(i,1) - 1, 1); tmpV2z = V(F(i,1) - 1, 2);
-		tmpV3x = V(F(i,2) - 1, 0); tmpV3y = V(F(i,2) - 1, 1); tmpV3z = V(F(i,2) - 1, 2);
-		Mesh temp_mesh = {tmpV1x, tmpV1y, tmpV1z, tmpV2x, tmpV2y, tmpV2z, tmpV3x, tmpV3y, tmpV3z};
-		Mesh3D.push_back(temp_mesh);
-	}
-	// store 3d point cloud to std::vector
+  {
+    tmpV1x = V(F(i,0) - 1, 0); tmpV1y = V(F(i,0) - 1, 1); tmpV1z = V(F(i,0) - 1, 2);
+    tmpV2x = V(F(i,1) - 1, 0); tmpV2y = V(F(i,1) - 1, 1); tmpV2z = V(F(i,1) - 1, 2);
+    tmpV3x = V(F(i,2) - 1, 0); tmpV3y = V(F(i,2) - 1, 1); tmpV3z = V(F(i,2) - 1, 2);
+    Mesh temp_mesh = {tmpV1x, tmpV1y, tmpV1z, tmpV2x, tmpV2y, tmpV2z,
+                                              tmpV3x, tmpV3y, tmpV3z};
+    Mesh3D.push_back(temp_mesh);
+  }
+	// store 3d point cloud to vector
   vector<Vector3> Cloud3D;
   double tmpx, tmpy, tmpz;
   for(octave_idx_type i = 0; i < V_rows; i++)
@@ -1257,56 +1317,71 @@ the registered points.\n\
   // find points corresponding to the max distance of the bone model
   maxDpoints maxD = longbone_maxDistance(Cloud3D);
   // calculate the normal vector and the 2 points in R3 that define the slicing
-  // planes at 20 and 80% of the maximum length of the bone
+  // planes at 20, 30, 70, and 80% of the maximum length of the bone
   Vector3 maxdV = subVectors3D(maxD.V2, maxD.V1);
   Vector3 maxDn = normalizeVector3D(maxdV);
   Vector3 section_P1 = {maxdV.x * 0.2, maxdV.y * 0.2, maxdV.z * 0.2};
+  Vector3 section_P1a = {maxdV.x * 0.3, maxdV.y * 0.3, maxdV.z * 0.3};
   Vector3 section_P2 = {maxdV.x * 0.8, maxdV.y * 0.8, maxdV.z * 0.8};
+  Vector3 section_P2a = {maxdV.x * 0.7, maxdV.y * 0.7, maxdV.z * 0.7};
   section_P1 = addVectors3D(maxD.V1, section_P1);
+  section_P1a = addVectors3D(maxD.V1, section_P1a);
   section_P2 = addVectors3D(maxD.V1, section_P2);
+  section_P2a = addVectors3D(maxD.V1, section_P2a);
   // calculate the sectioning points for each plane
   vector<Vector3> cs_plane_1 = sliceMesh(Mesh3D, section_P1, maxDn);
+  vector<Vector3> cs_plane_1a = sliceMesh(Mesh3D, section_P1a, maxDn);
   vector<Vector3> cs_plane_2 = sliceMesh(Mesh3D, section_P2, maxDn);
+  vector<Vector3> cs_plane_2a = sliceMesh(Mesh3D, section_P2a, maxDn);
   // calculate each cross-section's centroid
   Vector3 cs_centroid_1 = centroidPolygon3D(cs_plane_1, maxDn);
+  Vector3 cs_centroid_1a = centroidPolygon3D(cs_plane_1a, maxDn);
   Vector3 cs_centroid_2 = centroidPolygon3D(cs_plane_2, maxDn);
-  // calculate distance and normal between cross-section centroids
-  double cscD = distancePoints3D(cs_centroid_2, cs_centroid_1);
-  Vector3 cscdV = subVectors3D(cs_centroid_2, cs_centroid_1);
-  Vector3 cscDn = normalizeVector3D(cscdV);
-  // recalculate the two cross sections (20% and 80%) with the updated normal
-  cs_plane_1 = sliceMesh(Mesh3D, section_P1, cscDn);
-  cs_plane_2 = sliceMesh(Mesh3D, section_P2, cscDn);
+  Vector3 cs_centroid_2a = centroidPolygon3D(cs_plane_2a, maxDn);
+  // calculate normals between adjacent cross-section centroids
+  // so that normals point towards the nearest epiphysis
+  Vector3 cscdV1a_1 = subVectors3D(cs_centroid_1, cs_centroid_1a);
+  Vector3 cscDn1a_1 = normalizeVector3D(cscdV1a_1);
+  Vector3 cscdV2a_2 = subVectors3D(cs_centroid_2, cs_centroid_2a);
+  Vector3 cscDn2a_2 = normalizeVector3D(cscdV2a_2);
+  // recalculate cross sections with the updated normal
+  cs_plane_1 = sliceMesh(Mesh3D, section_P1, cscDn1a_1);
+  cs_plane_1a = sliceMesh(Mesh3D, section_P1a, cscDn1a_1);
+  cs_plane_2 = sliceMesh(Mesh3D, section_P2, cscDn2a_2);
+  cs_plane_2a = sliceMesh(Mesh3D, section_P2a, cscDn2a_2);
   // recalculate each cross-section's centroid
-  cs_centroid_1 = centroidPolygon3D(cs_plane_1, cscDn);
-  cs_centroid_2 = centroidPolygon3D(cs_plane_2, cscDn);
-  // calculate new distance and normal between updated cross-section centroids
-  cscD = distancePoints3D(cs_centroid_2, cs_centroid_1);
-  cscdV = subVectors3D(cs_centroid_2, cs_centroid_1);
-  cscDn = normalizeVector3D(cscdV);
-  // translate 20% cross-sectional centroids to origin
-  Cloud3D = translatePoints3D(Cloud3D, cs_centroid_1);
-  // find required angle of rotation between cross-sectional centroids and x axis
+  cs_centroid_1 = centroidPolygon3D(cs_plane_1, cscDn1a_1);
+  cs_centroid_1a = centroidPolygon3D(cs_plane_1a, cscDn1a_1);
+  cs_centroid_2 = centroidPolygon3D(cs_plane_2, cscDn2a_2);
+  cs_centroid_2a = centroidPolygon3D(cs_plane_2a, cscDn2a_2);
+  // recalculate normals between adjacent cross-section centroids
+  cscdV1a_1 = subVectors3D(cs_centroid_1, cs_centroid_1a);
+  cscDn1a_1 = normalizeVector3D(cscdV1a_1);
+  cscdV2a_2 = subVectors3D(cs_centroid_2, cs_centroid_2a);
+  cscDn2a_2 = normalizeVector3D(cscdV2a_2);
+  // translate 20% cross-sectional centroid to origin
+  vector<Vector3> Cloud3D_1 = translatePoints3D(Cloud3D, cs_centroid_1);
+  // find angle of rotation between 20% cross-sectional normal and x axis
   Vector3 x_axis = {1, 0, 0};
-  Vector3 cscDn_x_ = crossProduct3D(cscDn, x_axis);
-  Vector3 rot_axis = normalizeVector3D(cscDn_x_);
-  double theta_nom = dotProduct3D(cscDn_x_, rot_axis);
-  double theta_den = dotProduct3D(cscDn, x_axis);
-  double theta = atan2(theta_nom, theta_den);
-  // rotate model so that cscD vector aligns with x axis with 20% centroid
-  // at origin and the most distant edge along the positive side of x axis
-  Cloud3D = rotatePoints3D(Cloud3D, rot_axis, theta);
+  Vector3 cscDn1_x = crossProduct3D(cscDn1a_1, x_axis);
+  Vector3 rotAxis1 = normalizeVector3D(cscDn1_x);
+  double theta_nom = dotProduct3D(cscDn1_x, rotAxis1);
+  double theta_den = dotProduct3D(cscDn1a_1, x_axis);
+  double theta_1_x = atan2(theta_nom, theta_den);
+  // rotate model so that 20% cross-sectional normal aligns with x axis
+  // note: the nearest epiphysis lies on the positive side of x axis
+  Cloud3D_1 = rotatePoints3D(Cloud3D_1, rotAxis1, theta_1_x);
   // map 2D projection as the Y-Z plane of 3D space
   Vector3 X2D_vector = {0, 1, 0};
   Vector3 Y2D_vector = {0, 0, 1};
   // project the epiphysis near the 20% centroid onto the Y-Z plane
-  // keep points only on the negative side of x axis to be projected
+  // keep points only on the positive side of x axis to be projected
   vector<Vector3> epCloud_1;
-  for(int i = 0; i < Cloud3D.size(); i++)
+  for(int i = 0; i < Cloud3D_1.size(); i++)
   {
-    if(Cloud3D[i].x < 0)
+    if(Cloud3D_1[i].x > 0)
     {
-      epCloud_1.push_back(Cloud3D[i]);
+      epCloud_1.push_back(Cloud3D_1[i]);
     }
   }
   vector<Vector2> ZYproj_1;
@@ -1316,21 +1391,25 @@ the registered points.\n\
     double y2D = dotProduct3D(epCloud_1[i], Y2D_vector);
     ZYproj_1.push_back({x2D, y2D});
   }
-  // translate the 80% centroid point to the origin and rotate by 180 around
-  // the z axis so that the epiphysis goes to negative side of x axis
-  for(int i = 0; i < Cloud3D.size(); i++)
-  {
-    Cloud3D[i].x = - (Cloud3D[i].x - cscD);
-    Cloud3D[i].y = - Cloud3D[i].y;
-  }
+  // translate the 80% centroid point to the origin
+  vector<Vector3> Cloud3D_2 = translatePoints3D(Cloud3D, cs_centroid_2);
+  // find angle of rotation between 80% cross-sectional normal and x axis
+  Vector3 cscDn2_x = crossProduct3D(cscDn2a_2, x_axis);
+  Vector3 rotAxis2 = normalizeVector3D(cscDn2_x);
+  theta_nom = dotProduct3D(cscDn2_x, rotAxis2);
+  theta_den = dotProduct3D(cscDn2a_2, x_axis);
+  double theta_2_x = atan2(theta_nom, theta_den);
+  // rotate model so that 80% cross-sectional normal aligns with x axis
+  // note: the nearest epiphysis lies on the positive side of x axis
+  Cloud3D_2 = rotatePoints3D(Cloud3D_2, rotAxis2, theta_2_x);
   // project the epiphysis near the 20% centroid onto the Y-Z plane
-  // keep points only on the negative side of x axis to be projected
+  // keep points only on the positive side of x axis to be projected
   vector<Vector3> epCloud_2;
-  for(int i = 0; i < Cloud3D.size(); i++)
+  for(int i = 0; i < Cloud3D_2.size(); i++)
   {
-    if(Cloud3D[i].x < 0)
+    if(Cloud3D_2[i].x > 0)
     {
-      epCloud_2.push_back(Cloud3D[i]);
+      epCloud_2.push_back(Cloud3D_2[i]);
     }
   }
   vector<Vector2> ZYproj_2;
@@ -1340,7 +1419,7 @@ the registered points.\n\
     double y2D = dotProduct3D(epCloud_2[i], Y2D_vector);
     ZYproj_2.push_back({x2D, y2D});
   }
-  // process 2D projections to get their respective polylines and normalized EFDs 
+  // process 2D projections to get the respective polylines and normalized EFDs 
   vector<vector<Raster>> rasterMatrix1 = rasterizeCloud2D(ZYproj_1);
   vector<Contour> boundaryPixels1 = calculateMooreNeighbor(rasterMatrix1);
   vector<Vector2> polyline2D_1 = extract2Dpolyline(boundaryPixels1, ZYproj_1);
@@ -1358,36 +1437,40 @@ the registered points.\n\
   Polygon GEOM_2 = simplePolygon2D(polyline2D_2);
   // classify long bone and proximal distal epiphysis
   classifyBone(nEFD_1, nEFD_2, GEOM_1, GEOM_2);
-  // check the proximal-distal epiphysis and swap appropriate vectors so that
-  // distal Femur, proximal Tibia, and distal Humerus epiphyses are always stored
-  // in designated _1 return variables
-  if(global::epiphysis == 2)
+  // if global::epiphysis == 1 then distal Femur, proximal Tibia, distal
+  // Humerus, and proximal Ulna epiphyses are stored in designated _1 variables
+  //
+  // check for proximal-distal epiphysis, register points in 2D and 3D space on
+  // the correct epiphysis and apply the appropriate transformation so that
+  // registration points correspond to the original model orientation.
+  // 1) rotate around rotAxis1 by -theta_1_x so that x axis aligns with cscDn1a_1
+  //    and translate the origin at 20% centroid point, i.e. cs_centroid_1
+  // 2) rotate around rotAxis2 by -theta_2_x so that x axis aligns with cscDn2a_2
+  //    and translate the origin at 80% centroid point, i.e. cs_centroid_2
+  vector<Vector2> regPoints2D;
+  vector<Vector3> regPoints3D;
+  if(global::epiphysis == 1)
   {
-    epCloud_1.swap(epCloud_2);
-    nEFD_1.swap(nEFD_2);
-    polyline2D_1.swap(polyline2D_2);
-    swap(GEOM_1, GEOM_2);
+    regPoints2D = register2Dpolyline(polyline2D_1, GEOM_1);
+    regPoints3D = register3DepCloud(epCloud_1, regPoints2D);
+    regPoints3D = rotatePoints3D(regPoints3D, rotAxis1, -theta_1_x);
+    cs_centroid_1 = {-cs_centroid_1.x, -cs_centroid_1.y, -cs_centroid_1.z};
+    regPoints3D = translatePoints3D(regPoints3D, cs_centroid_1);
   }
-  // register points in 2D space
-  vector<Vector2> regPoints2D = register2Dpolyline(polyline2D_1, GEOM_1);
-  // register points in 3D space
-  vector<Vector3> regPoints3D = register3DepCloud(epCloud_1, regPoints2D);
-  // check whether the proximal-distal epiphysis has been swapped and rotate
-  // by 180 around the z axis and translate the origin at 80% centroid point
-  if(global::epiphysis == 2)
+  else if(global::epiphysis == 2)
   {
-    for(int i = 0; i < regPoints3D.size(); i++)
-    {
-      regPoints3D[i].x = - regPoints3D[i].x;
-      regPoints3D[i].y = - regPoints3D[i].y;
-      regPoints3D[i].x += cscD;
-    }
+    regPoints2D = register2Dpolyline(polyline2D_2, GEOM_2);
+    regPoints3D = register3DepCloud(epCloud_2, regPoints2D);
+    regPoints3D = rotatePoints3D(regPoints3D, rotAxis2, -theta_2_x);
+    cs_centroid_2 = {-cs_centroid_2.x, -cs_centroid_2.y, -cs_centroid_2.z};
+    regPoints3D = translatePoints3D(regPoints3D, cs_centroid_2);
   }
-  // rotate model so that x axis aligns with cscD vector and subsequently
-  // translate the origin at the 20% centroid
-  regPoints3D = rotatePoints3D(regPoints3D, rot_axis, -theta);
-  cs_centroid_1 = {-cs_centroid_1.x, -cs_centroid_1.y, -cs_centroid_1.z};
-  regPoints3D = translatePoints3D(regPoints3D, cs_centroid_1);
+  else
+  {
+    Vector3 tmpPoint = {0, 0, 0};
+    regPoints3D.push_back(tmpPoint);
+    regPoints3D.push_back(tmpPoint);
+  }
   // return registered 3D points
   Matrix regPoints(2, 3);
   regPoints(0,0) = regPoints3D[0].x;
