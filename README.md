@@ -43,8 +43,8 @@ from batch processing.
 
 After batch processing, the function `inspect_CSG` can be used for visual inspection
 of the calculated cross-sectional contours according to the files present in the
-working directory. Furthermore, `inspect_CSG` will assemble all calculated values
-in tabular form and save them in a CSV file.
+working directory. Furthermore, it will assemble all calculated values from the
+the samples (bones) that have been verified by the user and save them in a CSV file.
 
 The need for MeshLab .pp side car files has been also relaxed. If they are present
 along with their OBJ counterparts, they are utilized, if not, the initial alignment
