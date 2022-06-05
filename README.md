@@ -100,5 +100,7 @@ bones (a humerus, a femur and a tibia, which are part of the Athens modern refer
 skeletal collection), is also freely available at https://doi.org/10.5281/zenodo.1466962
 and may be used with the CSG Toolkit for demonstrating its operation. 
 
-
+An additional dataset comprising eight bilateral bones (humerus, ulna, femur, and
+tibia) is also available at https://doi.org/10.5281/zenodo.6614647 for testing and
+demostration purposes.
 
