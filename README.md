@@ -1,13 +1,16 @@
 # long-bone-diaphyseal-CSG-Toolkit
-A GNU Octave toolkit for analyzing diaphyseal long bone cross sectional geometry
+
+## A GNU Octave toolkit for analyzing diaphyseal long bone cross sectional geometry
 
 The present set of GNU Octave functions provides a novel and robust algorithm for
 analyzing the diaphyseal cross-sectional geometric properties of long bones, which
 can be applied to any 3D digital model of a humerus, femur or tibia bone represented
 as a triangular mesh in a Wavefront OBJ file format.
 
-The CSG Toolkit is compatible with versions of Octave >= v5.2.0 and depends on
-the 'io >= 2.4.12' package. Before use, the source files for oct functions must
+## Installation
+
+The CSG Toolkit is compatible with later versions of Octave >= v5.2.0 and depends
+on the 'io >= 2.4.12' package. Before use, the source files for oct functions must
 be compiled. Run the `compile` script to compile them. This is only required once.
 Alternatively, you may download and install the CSG Toolkit as a package using
 the archive 'csg-toolkit-1.2.2.tar.gz', which corresponds to the latest version.
@@ -63,5 +66,5 @@ cite the following reference:
 
 Bertsatos A, Chovalopoulou M-E. 2019. A novel method for analyzing long bone diaphyseal 
 cross-sectional geometry. A GNU Octave CSG Toolkit. Forensic Science International 297: 65–71. 
-DOI: 10.1016/j.forsciint.2019.01.041
+https://doi.org/10.1016/j.forsciint.2019.01.041
 
