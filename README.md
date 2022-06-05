@@ -41,7 +41,7 @@ Happy long bone analysis!
 
 ## Usage
 
-The CSG Toolkit can be called in batch processing mode using the 'longbone_Analysis'
+The CSG Toolkit can be called in batch processing mode using the `longbone_Analysis`
 script which can handle all available 3D models found in OBJ format in the working
 directory or any other folder path. Although this functionality is still available,
 there is no longer need to work with a specific bone being present in a folder for
