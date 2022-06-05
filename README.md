@@ -7,6 +7,14 @@ analyzing the diaphyseal cross-sectional geometric properties of long bones, whi
 can be applied to any 3D digital model of a humerus, ulna, femur or tibia bone
 represented as a triangular mesh in a Wavefront OBJ file format.
 
+## Citation
+
+If you use this package please include the following citation:
+
+Bertsatos A, Chovalopoulou M-E. 2019. A novel method for analyzing long bone diaphyseal 
+cross-sectional geometry. A GNU Octave CSG Toolkit. Forensic Science International 297: 65–71. 
+https://doi.org/10.1016/j.forsciint.2019.01.041
+
 ## Installation
 
 The CSG Toolkit is compatible with later versions of Octave >= v5.2.0 and depends
@@ -83,7 +91,7 @@ about the function and it's usage.
 * `write_MeshlabPoints`
 * `writeObj`
 
-## Testing Datasets and Citations
+## Testing Datasets
 
 The present toolkit has been extensively tested and these results are presented
 in the relevant validation study available at https://doi.org/10.5281/zenodo.1466135
@@ -92,9 +100,5 @@ bones (a humerus, a femur and a tibia, which are part of the Athens modern refer
 skeletal collection), is also freely available at https://doi.org/10.5281/zenodo.1466962
 and may be used with the CSG Toolkit for demonstrating its operation. 
 
-If you use this package please include the following citation:
 
-Bertsatos A, Chovalopoulou M-E. 2019. A novel method for analyzing long bone diaphyseal 
-cross-sectional geometry. A GNU Octave CSG Toolkit. Forensic Science International 297: 65–71. 
-https://doi.org/10.1016/j.forsciint.2019.01.041
 
