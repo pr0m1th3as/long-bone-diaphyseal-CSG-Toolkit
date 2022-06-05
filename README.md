@@ -41,8 +41,8 @@ batch proccessing. The user may select a specific bone, i.e. Humerus, or may cho
 to process different bones in a single batch process. Not selected bones are omitted
 from batch processing.
 
-After batch processing, the function `inspect_CSG.m` also
-be used to facilitate their visual inspection according to the files present in the
+After batch processing, the function `inspect_CSG` can be used for visual inspection
+of the calculated cross-sectional contours according to the files present in the
 working directory. Furthermore, `inspect_CSG` will assemble all calculated values
 in tabular form and save them in a CSV file.
 
