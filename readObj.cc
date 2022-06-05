@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2018-2021 Andreas Bertsatos <abertsatos@biol.uoa.gr>
+Copyright (C) 2018-2022 Andreas Bertsatos <abertsatos@biol.uoa.gr>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -27,19 +27,23 @@ struct VCoord
 {
   double x, y, z;
 };
+struct VColor
+{
+  double r, g, b;
+};
 struct Faces
 {
   int a, b, c;
-};  
+};
 struct TCoord
 {
   double u, v;
 };
-      
+
 
 DEFUN_DLD (readObj, args, nargout, 
           "-*- texinfo -*-\n\
-@deftypefn{Loadable function} @var{output_arguments} = readObj(@var{filename}, opt)\
+@deftypefn{Function} @var{output_arguments} = readObj(@var{filename}, opt)\
 \n\n\
 Example: [@var{v}, @var{f}] = readObj(\"3DMesh.obj\")\n\n\
 Example: [@var{v}, @var{f}] = readObj(\"3DMesh.obj\", \"info\")\n\n\
@@ -59,7 +63,8 @@ on which are present. If both sets are present then @code{readObj} returns only 
 the texture coordinates and their corresponding faces. If six output arguments are \
 given then all elements are returned as numerical array in the following order:\n\
 \n\
-@var{Vertices} as an Nx3 matrix with floating point values.\n\
+@var{Vertices} as an Nx3 matrix [x,y,z] with floating point values. If RGB color \
+information is available then an Nx6 matrix [x,y,z,r,g,b] is returned.\n\
 \n\
 @var{Faces} as an Nx3 matrix with integer values.\n\
 \n\
@@ -72,10 +77,10 @@ given then all elements are returned as numerical array in the following order:\
 @var{Face Normals} as an Nx3 matrix with integer values.\n\
 \n\
 If odd number of output arguments are provided, except for the case of a single \
-argument, then the last output argument isused for returning the .mtl filename, \
+argument, then the last output argument is used for returning the .mtl filename, \
 where material parameters are stored. Note that @code{readObj} handles explicitly \
-triangular mesh objects. If Obj file does not contain a proper triangular mesh, \
-then an error message is returned. \
+triangular mesh objects. If OBJ file does not contain a proper triangular mesh, \
+then an error message is returned.\
 @end deftypefn")
 {
   // Check if there is a valid number of input arguments
@@ -113,6 +118,7 @@ then an error message is returned. \
   ifstream inputFile(file.c_str());
   // define matrices for storing vertices and faces retrieved from obj
   vector<VCoord> vertex;
+  vector<VColor> vcolor;
   vector<Faces> face;
   // define matrices for storing normals and texture coordinates from obj
   vector<VCoord> normals;
@@ -124,6 +130,7 @@ then an error message is returned. \
   // initiate counters for mtl, vertices, normals, texture and faces
   octave_idx_type mtl_counter = 0;
   octave_idx_type vertex_counter = 0;
+  octave_idx_type vcolor_counter = 0;
   octave_idx_type normals_counter = 0;
   octave_idx_type texture_counter = 0;
   octave_idx_type face_counter = 0;
@@ -137,22 +144,23 @@ then an error message is returned. \
     string line;
     while (getline(inputFile, line))
     {
-      if (line[0] == 'm' && line[1] == 't' && line[2] == 'l')
-      {
-        int str_start = line.rfind(" ") + 1;
-        if(line.find("./") != -1) {str_start = line.find("./") + 2;}
-        int str_end = line.length();
-        int str_len = str_end - str_start;
-        mtl_filename = line.substr(str_start, str_len);
-        mtl_counter++;
-      }
-      else if (line[0] == 'v' && line[1] == ' ')
+      if (line[0] == 'v' && line[1] == ' ')
       {
         float tmpx, tmpy, tmpz;
-        sscanf(line.c_str(), "v %f %f %f" ,&tmpx,&tmpy,&tmpz);
+        float tmpR = -1;
+        float tmpG = -1;
+        float tmpB = -1;
+        sscanf(line.c_str(), "v %f %f %f %f %f %f",
+               &tmpx, &tmpy, &tmpz, &tmpR, &tmpG, &tmpB);
         VCoord temp3D = {tmpx, tmpy, tmpz};
         vertex.push_back(temp3D);
         vertex_counter++;
+        if (!(tmpR < 0 && tmpG < 0 && tmpB < 0))
+        {
+          VColor tempRGB = {tmpR, tmpG, tmpB};
+          vcolor.push_back(tempRGB);
+          vcolor_counter++;
+        }
       }
       else if (line[0] == 'v' && line[1] == 'n' && line[2] == ' ')
       {
@@ -267,7 +275,21 @@ then an error message is returned. \
             }
           }
         }
-      }  
+      }
+      else if (line[0] == 'm' && line[1] == 't' && line[2] == 'l')
+      {
+        int str_start = line.rfind(" ") + 1;
+        if(line.find("./") != -1) {str_start = line.find("./") + 2;}
+        int str_end = line.length();
+        int str_len = str_end - str_start;
+        mtl_filename = line.substr(str_start, str_len);
+        // remove trailing CR symbol if present
+        if (mtl_filename[mtl_filename.length() - 1] == '\r')
+        {
+          mtl_filename.erase(mtl_filename.length() - 1);
+        }
+        mtl_counter++;
+      }
     }
   }
   else
@@ -276,17 +298,40 @@ then an error message is returned. \
     return octave_value_list();
   }
   
-  // check if vertex coordinates exist and store them in Octave array
-  Matrix V (vertex_counter, 3);
-  if (vertex_counter > 0)
+  // check if vertex coordinates exist and store them in Octave array Nx3
+  // if vertex colors are present store them in the same Octave array Nx6
+  int dim = 3;
+  if (vcolor_counter > 0 && vcolor_counter == vertex_counter)
   {
-    if (info) { cout << "Mesh contains " << vertex_counter << " vertices "; }
-    //Matrix V (vertex_counter, 3);
+    dim = 6;
+  }
+  Matrix V (vertex_counter, dim);
+  if (vertex_counter > 0 && vcolor_counter == 0)
+  {
+    if (info) { cout << "Mesh contains " << vertex_counter << " vertices"; }
+    // Matrix V (vertex_counter, 3);
     for (octave_idx_type i = 0; i < vertex_counter; i++)
     {
       V(i,0) = vertex[i].x;
       V(i,1) = vertex[i].y;
       V(i,2) = vertex[i].z;
+    }
+  }
+  else if (vertex_counter > 0 && vcolor_counter == vertex_counter)
+  {
+    if (info)
+    {
+      cout << "Mesh contains " << vertex_counter << " vertices including RGB color";
+    }
+    // Matrix V (vertex_counter, 6);
+    for (octave_idx_type i = 0; i < vertex_counter; i++)
+    {
+      V(i,0) = vertex[i].x;
+      V(i,1) = vertex[i].y;
+      V(i,2) = vertex[i].z;
+      V(i,3) = vcolor[i].r;
+      V(i,4) = vcolor[i].g;
+      V(i,5) = vcolor[i].b;
     }
   }
   else
