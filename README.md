@@ -20,18 +20,11 @@ https://doi.org/10.1016/j.forsciint.2019.01.041
 The CSG Toolkit is compatible with later versions of Octave >= v5.2.0 and depends
 on the 'io >= 2.4.12' package. Before use, the source files for oct functions must
 be compiled. Run the `compile` script to compile them. This is only required once.
-Alternatively, you may download and install the CSG Toolkit as a package using
-the archive 'csg-toolkit-1.2.2.tar.gz', which corresponds to the latest version.
-When installing the packaged version, compiling, dependencies and loaded paths
-are handled automatically.
-Download and run
+Alternatively, you may download and install the CSG Toolkit as a package from its
+repository at https://github.com/pr0m1th3as/csg-toolkit by issuing the following
+command in Octave:
 
- `pkg install csg-toolkit-1.2.2.tar.gz`
-
-to install from a locally downloaded archive, or issue the following command to
-install the 'csg-toolkit' package automatically from this repository
-
- `pkg install "https://raw.githubusercontent.com/pr0m1th3as/long-bone-diaphyseal-CSG-Toolkit/master/csg-toolkit-1.2.2.tar.gz"`
+ `pkg install "https://github.com/pr0m1th3as/csg-toolkit/archive/refs/tags/v1.2.3.tar.gz"`
 
 The package can be loaded on demand in Octave with the following commmand:
 
