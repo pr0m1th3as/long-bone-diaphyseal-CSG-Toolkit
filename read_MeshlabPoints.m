@@ -48,31 +48,31 @@
 ## @end deftypefn
 
 function [varargout] = read_MeshlabPoints (filename)
-  % declare output variables
+  ## declare output variables
   MLP = zeros (1,4);
   name_list = {''};
-  % scan file and identify line containing points
+  ## scan file and identify line containing points
   point_index = 1;
   fid = fopen (filename, 'rt');
   line = fgets (fid);
   while ischar (line)
     if strfind (line, "<point")
-      % get indices of starting places for each axis coordinate
+      ## get indices of starting places for each axis coordinate
       x_start = strfind (line, "x=\"") + 3;
       y_start = strfind (line, "y=\"") + 3;
       z_start = strfind (line, "z=\"") + 3;
       name_start = strfind (line, "name=\"") + 6;
       quotes = strfind (line, "\"");
-      % get indices of ending places for each axis coordinate
+      ## get indices of ending places for each axis coordinate
       x_end = min (quotes(find (quotes > x_start))) - 1;
       y_end = min (quotes(find (quotes > y_start))) - 1;
       z_end = min (quotes(find (quotes > z_start))) - 1;
       name_end = min (quotes(find (quotes>name_start))) - 1;
-      % get values
+      ## get values
       x = str2num (line(x_start:x_end));
       y = str2num (line(y_start:y_end));
       z = str2num (line(z_start:z_end));
-      % check for numeric values for each point's name field
+      ## check for numeric values for each point's name field
       if (isnumeric (str2num (line(name_start:name_end))))
         name = str2num (line(name_start:name_end));
         name_list(point_index) = str2num (line(name_start:name_end));
@@ -86,7 +86,7 @@ function [varargout] = read_MeshlabPoints (filename)
     line = fgets (fid);
   end
   fclose (fid);
-  % return variables
+  ## return variables
   if (nargout==1)
     varargout{1} = MLP;
   elseif (nargout==2)

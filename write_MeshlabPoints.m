@@ -35,18 +35,18 @@
 ## @end deftypefn
 
 function write_MeshlabPoints (varargin)
-  % check the number of input variables
+  ## check the number of input variables
   if length (varargin) < 3 || length (varargin) > 4
     error 'wrong number of input arguments';
   endif
-  % check first two arguments are strings
+  ## check first two arguments are strings
   if ! ischar (varargin{1}(:)') || ! ischar (varargin{2}(:)')
     error 'first two input arguments should be char strings';
   else
     filename = varargin{1}(:)';
     meshname = varargin{2}(:)';
   endif
-  % chech third input argument
+  ## chech third input argument
   if length (varargin) == 3 && size (varargin{3},2) == 4
     MLP = varargin{3}(:,[2:4]);
     pointindex = varargin{3}(:,1);
@@ -63,10 +63,10 @@ function write_MeshlabPoints (varargin)
     error 'Invalid arguments';
   endif
   
-  % open .pp file in writing mode and append the required headers
+  ## open .pp file in writing mode and append the required headers
   fid = fopen (filename,'wt');
   fprintf (fid, "<!DOCTYPE PickedPoints>\n<PickedPoints>\n <DocumentData>\n");
-  % get time, date and user from the system to use it in the file's DocumentData section
+  ## get time, date and user from the system to use it for DocumentData section
   [a, user] = system ("users");
   user = user(1:end-1);     % remove trailing newline char from user string
   a = clock;
@@ -76,14 +76,14 @@ function write_MeshlabPoints (varargin)
   fprintf (fid, "  <User name=""%s""/>\n", user);
   fprintf (fid, "  <DataFileName name=""%s""/>\n", meshname);
   fprintf (fid, "  <templateName name=""""/>\n </DocumentData>\n");
-  % check for three input arguments and add the points to the file
+  ## check for three input arguments and add the points to the file
   if exist ('pointindex')
     for i = 1:length (pointindex)
       fprintf (fid, " <point active=""1"" name=""%d"" x=""%0.4f"" y=""%0.4f"" z=""%0.4f""/>\n",...
                pointindex(i), MLP(i,1), MLP(i,2), MLP(i,3));
     endfor
   endif
-  % check for three input arguments and add the points to the file
+  ## check for three input arguments and add the points to the file
   if exist('namelist')
     for i = 1:length (namelist)
       fprintf (fid, " <point active=""1"" name=""%s"" x=""%0.4f"" y=""%0.4f"" z=""%0.4f""/>\n",...

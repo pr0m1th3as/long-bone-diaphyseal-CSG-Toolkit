@@ -63,14 +63,14 @@
 ## @end deftypefn
 
 function [varargout] = longbone_Scaling (varargin)  
-  % check for valid number of input variables
+  ## check for valid number of input variables
   if nargin ~= 0 && nargin ~= 1 && nargin ~= 2
     printf ("invalid number of input arguments\n");
     return;
   endif
-  % check if input argument is provided. It must be a string
+  ## check if input argument is provided. It must be a string
   if nargin == 1
-    % it must be string
+    ## it must be string
     if ! ischar (varargin{1}(:)')
       printf ("Mesh object filename must be a string\n");
       return;
@@ -78,12 +78,12 @@ function [varargout] = longbone_Scaling (varargin)
     filenames(1).name = varargin{1}(:)';
     ask_user = true;
   elseif nargin == 2
-    % first input argument must be a string
+    ## first input argument must be a string
     if ! ischar (varargin{1}(:)')
       printf ("Mesh object filename must be a string\n");
       return;
     endif
-    % second input argument must be a scalar
+    ## second input argument must be a scalar
     if ! isscalar (varargin{2}(:))
       printf ("Max Distance must be a scalar\n");
       return;
@@ -92,42 +92,42 @@ function [varargout] = longbone_Scaling (varargin)
     RmaxD = varargin{2}(:);
     ask_user = false;
   else
-    % list the filenames with .obj extension in the working folder
+    ## list the filenames with .obj extension in the working folder
     filenames = dir ("*.obj");
     ask_user = true;
   endif
-  % initialize header for the cell array
+  ## initialize header for the cell array
   scale = {"filename", "ratio", "oldMaxD", "newMaxD"};
-  % perform scaling for each mesh object present in the working directory
+  ## perform scaling for each mesh object present in the working directory
   for i = 1:length (filenames)
-    % store filename of current mesh
+    ## store filename of current mesh
     filenameOBJ = strcat (filenames(i).name);
-    % read original obj file
+    ## read original obj file
     [v, f, vt, ft, vn, fn, filenameMTL] = readObj (filenameOBJ);
-    % calculate maximum distance and corresponding points
+    ## calculate maximum distance and corresponding points
     [maxD, p1, p2] = longbone_maxDistance (v(:,[1:3]));
-    % save maxD points to Meshlab .pp file using the name convention of the
-    % original mesh obj file
+    ## save maxD points to Meshlab .pp file using the name convention of the
+    ## original mesh obj file
     filenamePP = strcat (filenameOBJ([1:end-4]), ".pp");
     write_MeshlabPoints (filenamePP, filenameOBJ, [p1; p2]);
-    % ask user for actual maximum distance (real size)
+    ## ask user for actual maximum distance (real size)
     if ask_user
       realMaxD = inputdlg ("maximum distance in mm", filenameOBJ, [1,20]);
       RmaxD = str2num (cell2mat (realMaxD));
     endif
-    % calculate scaling ratio
+    ## calculate scaling ratio
     ratio = RmaxD / maxD;
-    % find barycentric coordinates and translate mesh' origin
+    ## find barycentric coordinates and translate mesh' origin
     origin = meshBarycenter (v(:,[1:3]), f);
     v(:,[1:3]) = v(:,[1:3]) - origin;
-    % scale mesh
+    ## scale mesh
     v(:,[1:3]) = v(:,[1:3]) * ratio;
-    % check if texture coordinates and material file exist in OBJ
+    ## check if texture coordinates and material file exist in OBJ
     if (!isempty (vt) && !isempty (ft) && !isempty (filenameMTL))
-      % read original mtl file
+      ## read original mtl file
       MTL = mtlread (filenameMTL);
-      % find which material's name corresponds to OBJ name and keep it or
-      % alternatively search for texture altas in non-empty  'map_Kd' field
+      ## find which material's name corresponds to OBJ name and keep it or
+      ## alternatively search for texture altas in non-empty  'map_Kd' field
       for id = 1:length (MTL)
         if strcmp (getfield (MTL(id), "newmtl"), filenameOBJ([1:end-4]))
           newmtl_id = id;
@@ -137,7 +137,7 @@ function [varargout] = longbone_Scaling (varargin)
         endif
       endfor
     endif
-    % save scaled model according to the elements present in the original OBJ
+    ## save scaled model according to the elements present in the original OBJ
     if (!isempty (vt) && !isempty (ft) && !isempty (filenameMTL) &&
         !isempty (vn) && !isempty (fn))
       filenameOBJ = writeObj (v, f, vt, ft, vn, fn, filenameOBJ);
@@ -150,10 +150,10 @@ function [varargout] = longbone_Scaling (varargin)
     else
       filenameOBJ = writeObj (v, f, filenameOBJ);
     endif
-    % calculate scaled model's max distance and save its points in .pp file
+    ## calculate scaled model's max distance and save its points in .pp file
     [maxDnew, p1, p2] = longbone_maxDistance (v);
     write_MeshlabPoints (filenamePP, filenameOBJ, [p1; p2]);
-    % check if texture coordinates and material file exist in OBJ (again!!)
+    ## check if texture coordinates and material file exist in OBJ (again!!)
     if (!isempty (vt) && !isempty (ft) && !isempty (filenameMTL))
       if exist ("newmtl_id")
         MTL = MTL(newmtl_id);
@@ -164,12 +164,12 @@ function [varargout] = longbone_Scaling (varargin)
         % rename material to the OBJ's updated name (just in case!!)
         MTL.newmtl = filenameOBJ([1:end-4]);
       endif
-      % check for texture map image in 'map_Kd' field and if available, then
-      % compare its filename to OBJ filename and if they don't match make a new
-      % copy of the image with the updated OBJ filename. Also update it in map_Kd
+      ## check for texture map image in 'map_Kd' field and if available, then
+      ## compare its filename to OBJ filename and if they don't match make a new
+      ## copy of the image with the updated OBJ filename. Also update map_Kd
       if isfield (MTL, "map_Kd") && ! isempty (getfield (MTL, "map_Kd"))
         filenameIMG = getfield (MTL, "map_Kd");
-        % check in image exists in working directory 
+        ## check in image exists in working directory 
         f_len = length(filenameIMG - 4);
         if exist (filenameIMG) == 2 && ! strncmp (filenameIMG, filenameOBJ, f_len)
           new_fnIMG = strcat(filenameOBJ([1:end-4]), filenameIMG([end-3:end]));
@@ -177,29 +177,29 @@ function [varargout] = longbone_Scaling (varargin)
           copyfile (filenameIMG, new_fnIMG);
         endif
       endif
-      % make filename for material library file consistent with OBJ filename
+      ## make filename for material library file consistent with OBJ filename
       filenameMTL = strcat (filenameOBJ([1:end-4]), ".mtl");
-      % write to mtl file
+      ## write to mtl file
       mtlwrite (filenameMTL, MTL);
     endif
-    % save scaling ratio and related measurements for each mesh object in
-    % a data structure
+    ## save scaling ratio and related measurements for each mesh object in
+    ## a data structure
     scale{i+1,1} = filenameOBJ;
     scale{i+1,2} = ratio;
     scale{i+1,3} = maxD;
     scale{i+1,4} = maxDnew;
-    % flush the screen output to display the results during iterations through
-    % multiple mesh files
+    ## flush the screen output to display the results during iterations through
+    ## multiple mesh files
     page_screen_output (0);
     page_output_immediately (1);
-    % display ratio and measurements for the current mesh object
+    ## display ratio and measurements for the current mesh object
     printf("Model %s was scaled by %f.\n", scale{i+1,1}, scale{i+1,2});
     printf("Old max distance was %f. New max distance is %f.\n\n", ...
             scale{i+1,3}, scale{i+1,4});
   endfor
-  % check for output arguments
+  ## check for output arguments
   if (nargout==0)
-    % ask user for filename to save scaling values to csv file
+    ## ask user for filename to save scaling values to csv file
     filenameCSV = uiputfile ({'*.csv', 'Supported Formats'});
     cell2csv (filenameCSV, scale);
   elseif (nargout==1)

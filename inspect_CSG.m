@@ -34,13 +34,13 @@
 ## @seealso{visualize_CrossSections, longbone_Analysis}
 ## @end deftypefn
 
-% list the filenames with geometry-*.csv pattern in the working folder
+## list the filenames with geometry-*.csv pattern in the working folder
 filenames = dir ("geometry-*.csv");
-% define folder containing the .obj files
+## define folder containing the .obj files
 dialog = "Select folder containing 3D models for longbone analysis";
 folder = uigetdir (dialog);
 
-% create the header of the final csv file in a cell array
+## create the header of the final csv file in a cell array
 complete(1,1) = {"sample"}; complete(1,2) = {"Max Distance"};
 complete(1,3) = {"angle-20_35"}; complete(1,4) = {"angle-35_50"};
 complete(1,5) = {"angle-50_65"}; complete(1,6)={"angle-65_80"};
@@ -67,40 +67,40 @@ complete(1,44) = {"Ixy 80%"}; complete(1,45) = {"Imin 80%"};
 complete(1,46) = {"Imax 80%"}; complete(1,47) = {"Theta 80%"};
 
 id = 0;
-% for each geometry-*.csv files
+## for each geometry-*.csv files
 for i = 1:length (filenames)
-  % extract the OBJ model's name and call the visualization function
+  ## extract the OBJ model's name and call the visualization function
   bone_id = strcat (filenames(i).name(10:end-4));
   [geometry, inertia] = visualize_CrossSections (bone_id);
   btn = questdlg ("Are CSG properties shown properly?", bone_id, "Yes", "No");
   if (strcmp (btn, "Yes"))
     close all;
     id += 1;
-    % read full data from relevant geometry csv files
+    ## read full data from relevant geometry csv files
     g_filename = strcat ("geometry-", bone_id, ".csv");
     full_geometry = csvread (g_filename);
-    % write sample's id
+    ## write sample's id
     complete(i+1,1) = {bone_id};
-    % check if 3D model's OBJ file is present in the working directory and in
-    % such case calculate its max distance and append it in the cell array,
-    % otherwise append a NaN value
+    ## check if 3D model's OBJ file is present in the working directory and in
+    ## such case calculate its max distance and append it in the cell array,
+    ## otherwise append a NaN value
     obj_filename = strcat (bone_id, ".obj");
     if (exist (fullfile (folder, obj_filename)) == 2)
       [v,f] = readObj (fullfile (folder, obj_filename));
-      % keep only vertex coordinates (just in case color information is present)
+      ## keep only vertex coordinates (just in case color information is present)
       v = v(:,[1:3]);
       maxD = longbone_maxDistance (v);
       complete(i+1,2) = {maxD};
     else
       complete(i+1,2) = {NaN};
     endif
-    % compute dihedral angles between cross sectional plane vectors
+    ## compute dihedral angles between cross sectional plane vectors
     a1_2 = rad2deg (acos (dot (full_geometry(1,[6:8]), full_geometry(2,[6:8]))));
     a2_3 = rad2deg (acos (dot (full_geometry(2,[6:8]), full_geometry(3,[6:8]))));
     a3_4 = rad2deg (acos (dot (full_geometry(3,[6:8]), full_geometry(4,[6:8]))));
     a4_5 = rad2deg (acos (dot (full_geometry(4,[6:8]), full_geometry(5,[6:8]))));
     asum = a1_2 + a2_3 + a3_4 + a4_5;
-    % store in a cell array
+    ## store in a cell array
     complete(i+1,[3:7])={a1_2, a2_3, a3_4, a4_5, asum};
     complete(i+1,[8:47]) = {geometry(1).Area, geometry(1).Perimeter, ...
                           inertia(1).Ix, inertia(1).Iy, inertia(1).Ixy, ...

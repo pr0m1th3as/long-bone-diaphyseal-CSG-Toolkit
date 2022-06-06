@@ -62,25 +62,23 @@
 ## @seealso{inspect_CSG, visualize_CrossSections, longbone_Geometry}
 ## @end deftypefn
 
-% define the bone(s) to be analyzed from the available 3D model files
+## define the bone(s) to be analyzed from the available 3D model files
 options = {"Humerus", "Ulna", "Femur", "Tibia", "All"};
 pstring = "Select desired bones for analysis";
 [bones, OK] = listdlg ("ListString", options, "SelectionMode", "multiple", ...
                       "ListSize", [222, 150], "InitialValue", 4, "Name", ...
                       "longbone_Analysis", "PromptString", pstring);
-% define folder containing the available .obj files
+## define folder containing the available .obj files
 dialog = "Select folder containing 3D models for analysis";
 folder = uigetdir (dialog);
 
-% list the filenames with .obj extension in the working folder
+## list the filenames with .obj extension in the working folder
 filenames = dir (fullfile (folder, "*.obj"));
-
-% calculate the geometric properties for each 
+## calculate the geometric properties for each 
 for i = 1:length (filenames)
   filename = strcat (filenames(i).name);
   [CS_Geometry, SMoA, polyline] = longbone_Geometry (folder, filename, bones);
-
-  % check for non empty structures
+  ## check for non empty structures
   if (isstruct(CS_Geometry) && isstruct(SMoA) && isstruct(polyline))
     
     geometry(:,1) = [CS_Geometry(1).Area; CS_Geometry(2).Area; ...

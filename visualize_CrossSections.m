@@ -58,18 +58,18 @@
 ## @end deftypefn
 
 function [varargout] = visualize_CrossSections(varargin)
-  % if only 'bone_id' is given scan the files of the working directory for the
-  % required .csv files and check if all three .csv files are present.
+  ## if only 'bone_id' is given scan the files of the working directory for the
+  ## required .csv files and check if all three .csv files are present.
   if (nargin == 1 && ! ischar (varargin{1}(:)'))
     error 'BONE_ID must be a string.';
   elseif (nargin == 1 && ischar (varargin{1}(:)'))
     bone_id = varargin{1}(:)';
     filenames = readdir(pwd);
-    % merge filenames
+    ## merge filenames
     g_filename = strcat("geometry-", bone_id, ".csv");
     i_filename = strcat("inertia-", bone_id, ".csv");
     p_filename = strcat("polyline2D-", bone_id, ".csv");
-    % read files if available
+    ## read files if available
     if (sum (strcmp (filenames, g_filename)) == 1)
       geometry = csvread (filenames(strcmp (filenames, g_filename)){:});
     endif
@@ -79,12 +79,12 @@ function [varargout] = visualize_CrossSections(varargin)
     if (sum (strcmp (filenames, p_filename)) == 1)
       poly = csvread (filenames(strcmp (filenames, p_filename)){:});
     endif
-    % check if all files present
+    ## check if all files present
     if !(exist("geometry") == 1 && exist("inertia") == 1 && exist("poly") == 1)
       error 'not all .csv files are present.';
     else
-      % store the matrices from the .csv files to the corresponding
-      % structures in the same format as returned from 'longbone_Geometry.m'
+      ## store the matrices from the .csv files to the corresponding
+      ## structures in the same format as returned from 'longbone_Geometry.m'
       a = {" 20%", " 35%", " 50%", " 65%", " 80%"};
       for i = 1:length (a)
         CS_Geometry(i).Area = geometry(i,1);
@@ -98,7 +98,7 @@ function [varargout] = visualize_CrossSections(varargin)
         SMoA(i).Imin = inertia(i,4);
         SMoA(i).Imax = inertia(i,5);
         SMoA(i).theta = inertia(i,6);
-        % remove the trailing zeros from each columns
+        ## remove the trailing zeros from each columns
         poly_x = poly(:,i * 2 - 1);
         poly_y = poly(:,i * 2);
         lnz_x = find (poly_x, 1, 'last');
@@ -110,9 +110,9 @@ function [varargout] = visualize_CrossSections(varargin)
         clear poly_x; clear poly_y; clear lnz_x; clear lnz_y;
       endfor
     endif
-  % alternatively, check if two input arguments are parsed into the function
-  % if both are strings and the second is "custom", then assume csv files
-  % generated with longbone_CustomGeometry function
+  ## alternatively, check if two input arguments are parsed into the function
+  ## if both are strings and the second is "custom", then assume csv files
+  ## generated with longbone_CustomGeometry function
   elseif nargin == 2
     if ! ischar (varargin{1}(:)')
       error 'BONE_ID must be a string.';
@@ -122,11 +122,11 @@ function [varargout] = visualize_CrossSections(varargin)
     endif
     bone_id = varargin{1}(:)';
     filenames = readdir(pwd);
-    % merge filenames
+    ## merge filenames
     g_filename = strcat("Cgeometry-", bone_id, ".csv");
     i_filename = strcat("Cinertia-", bone_id, ".csv");
     p_filename = strcat("Cpolyline2D-", bone_id, ".csv");
-    % read files if available
+    ## read files if available
     if (sum (strcmp (filenames, g_filename)) == 1)
       geometry = csvread (filenames(strcmp (filenames, g_filename)){:});
     endif
@@ -136,12 +136,12 @@ function [varargout] = visualize_CrossSections(varargin)
     if (sum (strcmp (filenames, p_filename)) == 1)
       poly = csvread (filenames(strcmp (filenames, p_filename)){:});
     endif
-    % check if all files present
+    ## check if all files present
     if !(exist("geometry") == 1 && exist("inertia") == 1 && exist("poly") == 1)
       error 'not all .csv files are present.';
     else
-      % store the matrices from the .csv files to the corresponding
-      % structures in the same format as returned from 'longbone_Geometry.m'
+      ## store the matrices from the .csv files to the corresponding
+      ## structures in the same format as returned from 'longbone_Geometry'
       for i = 1: size (geometry, 1)
         if (geometry(i,1) < 1)
           a{i} = sprintf(" %0.2d%%", geometry(i,1) * 100);
@@ -159,7 +159,7 @@ function [varargout] = visualize_CrossSections(varargin)
         SMoA(i).Imin = inertia(i,5);
         SMoA(i).Imax = inertia(i,6);
         SMoA(i).theta = inertia(i,7);
-        % remove the trailing zeros from each columns
+        ## remove the trailing zeros from each columns
         poly_x = poly([2:end],i * 2 - 1);
         poly_y = poly([2:end],i * 2);
         lnz_x = find (poly_x, 1, 'last');
@@ -171,8 +171,8 @@ function [varargout] = visualize_CrossSections(varargin)
         clear poly_x; clear poly_y; clear lnz_x; clear lnz_y;
       endfor
     endif
-  % alternatively, check if four input arguments are parsed into the function
-  % and check that the last three are structures
+  ## alternatively, check if four input arguments are parsed into the function
+  ## and check that the last three are structures
   elseif (nargin == 4)
     if ! ischar (varargin{1}(:)')
       error 'BONE_ID must be a string.';
@@ -188,7 +188,7 @@ function [varargout] = visualize_CrossSections(varargin)
   else
     error 'invalid number of input arguments.';
   endif
-  % plot figures
+  ## plot figures
   for i = 1:length (a)
     figure (i, "name", bone_id, "numbertitle", "off");
     x = [polyline(i).poly2D(:,1); polyline(i).poly2D(1,1)];
@@ -212,7 +212,7 @@ function [varargout] = visualize_CrossSections(varargin)
     pos(i,1) = pos(i,1) + (i - 1) * 150;
     set (gcf, 'Position', [pos(i,1), pos(i,2), pos(i,3), pos(i,4)]);
   endfor
-  % check if output arguments are defined and return the data structures
+  ## check if output arguments are defined and return the data structures
   if nargout == 1
     varargout{1} = CS_Geometry;
   elseif nargout == 2

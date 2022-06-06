@@ -24,12 +24,12 @@
 ## @end deftypefn
 
 function [varargout] = renameObj (varargin)  
-  % check for valid number of input variables
+  ## check for valid number of input variables
   if nargin ~= 2
     printf("invalid number of input arguments\n");
     return;
   endif
-  % check if both input arguments are strings
+  ## check if both input arguments are strings
   if (! ischar(varargin{1}(:)') || ! ischar(varargin{2}(:)'))
     printf("Both source and target filenames must be strings\n");
     return;
@@ -37,31 +37,31 @@ function [varargout] = renameObj (varargin)
     source = varargin{1}(:)';
     target = varargin{2}(:)';
   endif
-  % check if source file exists
+  ## check if source file exists
   if (! exist (source, "file"))
     printf("Source file does not exist\n");
     return;
   endif
-  % check if source target files are identical
+  ## check if source target files are identical
   if (strcmp (source, target))
     printf("Target and source filenames are the same\n");
     return;
   endif
-  % read original obj file and delete it
+  ## read original obj file and delete it
   [v, f, vt, ft, vn, fn, filenameMTL] = readObj (source);
   delete (source);
-  % check if texture coordinates and material file exist in OBJ
+  ## check if texture coordinates and material file exist in OBJ
   mat_lib = false;
   if (! isempty (vt) && ! isempty (ft) && ! isempty (filenameMTL))
-    % check if material library sidecar file exists
+    ## check if material library sidecar file exists
     if (! exist (filenameMTL, "file"))
       printf("Material library file does not exist\n");
       return;
     endif
-    % read original mtl file
+    ## read original mtl file
     MTL = mtlread (filenameMTL);
-    % find which material's name corresponds to OBJ name and keep it or
-    % alternatively search for texture altas in non-empty  'map_Kd' field
+    ## find which material's name corresponds to OBJ name and keep it or
+    ## alternatively search for texture altas in non-empty  'map_Kd' field
     for id = 1:length (MTL)
       if strcmp (getfield (MTL(id), "newmtl"), source([1:end-4]))
         newmtl_id = id;
@@ -71,10 +71,10 @@ function [varargout] = renameObj (varargin)
       endif
     endfor
     mat_lib = true;
-    % delete original file
+    ## delete original file
     delete (filenameMTL);
   endif
-  % save scaled model according to the elements present in the original OBJ
+  ## save scaled model according to the elements present in the original OBJ
   if (!isempty (vt) && !isempty (ft) && !isempty (filenameMTL) &&
       !isempty (vn) && !isempty (fn))
     target = writeObj(v, f, vt, ft, vn, fn, target);
@@ -87,40 +87,40 @@ function [varargout] = renameObj (varargin)
   else
     target = writeObj(v, f, target);
   endif
-  % check if texture coordinates and material file exist in OBJ (again!!)
+  ## check if texture coordinates and material file exist in OBJ (again!!)
   if mat_lib
     if exist ("newmtl_id")
       MTL = MTL(newmtl_id);
-      % rename material to the OBJ's updated name (just in case!!)
+      ## rename material to the OBJ's updated name (just in case!!)
       MTL.newmtl = target([1:end-4]);
     elseif exist ("map_Kd_id")
       MTL = MTL(map_Kd_id);
-      % rename material to the OBJ's updated name (just in case!!)
+      ## rename material to the OBJ's updated name (just in case!!)
       MTL.newmtl = target([1:end-4]);
     endif
-    % check for texture map image in 'map_Kd' field and if available, then
-    % compare its filename to OBJ filename and if they don't match update map_Kd
+    ## check for texture map image in 'map_Kd' field and if available, then
+    ## compare its filename to OBJ filename and if they don't match update map_Kd
     if (isfield (MTL, "map_Kd") && ! isempty (getfield (MTL, "map_Kd")))
       filenameIMG = getfield (MTL, "map_Kd");
-      % check in image exists in working directory 
+      ## check in image exists in working directory 
       f_len = length(filenameIMG - 4);
       if exist (filenameIMG) == 2 && ! strncmp (filenameIMG, target, f_len)
         new_fnIMG = strcat (target([1:end-4]), filenameIMG([end-3:end]));
         MTL.map_Kd = new_fnIMG;
-        % check in image exists and rename it if necessary
+        ## check in image exists and rename it if necessary
         if (exist (filenameIMG, "file") && ! strcmp (filenameIMG, new_fnIMG))
           rename(filenameIMG, new_fnIMG);
         endif
       endif
     endif
-    % make filename for material library file consistent with OBJ filename
+    ## make filename for material library file consistent with OBJ filename
     filenameMTL = strcat (target([1:end-4]), ".mtl");
-    % write to mtl file
+    ## write to mtl file
     mtlwrite(filenameMTL, MTL);
   endif
-  % check for output arguments
+  ## check for output arguments
   if (nargout==1)
-    % return the final name of target file
+    ## return the final name of target file
     varargout{1} = target;
   endif
 endfunction
